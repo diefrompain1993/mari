@@ -16,3 +16,7 @@ Performance: headless WebKit at DPR 1 measured near 60 FPS; DPR 3 device emulati
 Full normal playthrough completed in 903.68 seconds (15:04), from the start button to final_question, with no scene jumps or forced mini-game completion. All five interaction beats completed. No page errors or failed requests. Evidence: local art/qa/full/report.json, scene screenshots and a full WebM recording; captures are ignored by git and excluded from the build.
 
 This run followed fixes for a negative response timer blocking later night/sort choices and WebKit canvas presentation disappearing after viewport resize. The drawing buffer now stays fixed; CSS sizing and inverse stage scaling preserve proportions and input coordinates. Resizing is checked with screenshot pixel variance and touch advancement, not only absence of exceptions. Night prompts were also moved above the answer controls.
+
+Final local regression: strict TypeScript/build, 8 logic tests, and all 6 browser tests passed (3 each in WebKit and Chromium). The resize test waits for typewriter completion before advancing, avoiding a double-tap race that could skip the expected line. Normal full-run screenshots were reviewed across all 11 scenes.
+
+Deployment: source pushed to private diefrompain1993/mari. GitHub Pages creation returned HTTP 422: “Your current plan does not support GitHub Pages for this repository.” No live site is claimed. Repository visibility remains private pending the user's hosting choice.
