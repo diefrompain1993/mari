@@ -1,6 +1,8 @@
 # Проявление
 Personal mobile portrait visual novel, working title. Built for 390 × 844, with authored identity-based characters and an open in-person final question.
 
+Game address: https://diefrompain1993.github.io/mari/ — open on a phone in portrait orientation. Deployment runs through GitHub Actions on main.
+
 ```sh
 npm ci
 npm run dev

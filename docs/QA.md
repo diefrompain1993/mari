@@ -20,3 +20,5 @@ This run followed fixes for a negative response timer blocking later night/sort 
 Final local regression: strict TypeScript/build, 8 logic tests, and all 6 browser tests passed (3 each in WebKit and Chromium). The resize test waits for typewriter completion before advancing, avoiding a double-tap race that could skip the expected line. Normal full-run screenshots were reviewed across all 11 scenes.
 
 Deployment: source pushed to private diefrompain1993/mari. GitHub Pages creation returned HTTP 422: “Your current plan does not support GitHub Pages for this repository.” No live site is claimed. Repository visibility remains private pending the user's hosting choice.
+
+User then explicitly requested making the repository public. Visibility changed to PUBLIC and Pages configuration succeeded with HTTPS at https://diefrompain1993.github.io/mari/. Live deployment verification follows the workflow run.
