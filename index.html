@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1"
+    />
+    <meta name="theme-color" content="#111516" />
+    <meta
+      name="description"
+      content="Маленькая история о том, как постепенно становится видно главное."
+    />
+    <title>Проявление</title>
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath fill='%23111516' d='M0 0h32v32H0z'/%3E%3Cpath stroke='%23eadbc0' fill='none' d='M8 26V10Q16 0 24 10v16M12 26V12q4-6 8 0v14'/%3E%3C/svg%3E"
+    />
+  </head>
+  <body>
+    <main id="game" aria-label="Проявление — визуальная новелла"></main>
+    <div id="boot" role="status">
+      <i></i>
+      <p>Сначала — одна линия.</p>
+      <small>История проявляется</small>
+    </div>
+    <div id="orientation">
+      <p>Эту историю лучше<br />смотреть вертикально.</p>
+    </div>
+    <div id="desktop">
+      <p>Открой эту историю<br />на телефоне.</p>
+      <small
+        >Она создана для небольшого экрана<br />и одного важного
+        человека.</small
+      >
+    </div>
+    <button id="settings-button" aria-label="Настройки">⋮</button>
+    <dialog id="settings">
+      <form method="dialog">
+        <h2>Немного тише</h2>
+        <label
+          >Музыка<input
+            id="music"
+            type="range"
+            min="0"
+            max="1"
+            step="0.05" /></label
+        ><label
+          >Звуки мира<input
+            id="sfx"
+            type="range"
+            min="0"
+            max="1"
+            step="0.05" /></label
+        ><label
+          >Скорость текста<input
+            id="text-speed"
+            type="range"
+            min="15"
+            max="65"
+            step="5" /></label
+        ><label class="check"
+          >Меньше движения<input id="reduced-motion" type="checkbox" /></label
+        ><button id="restart" type="button">Начать историю заново</button
+        ><button>Вернуться</button>
+      </form>
+    </dialog>
+    <div id="audio-retry" hidden><button>Включить звук</button></div>
+    <div id="sr-story" class="sr-only" aria-live="polite"></div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
