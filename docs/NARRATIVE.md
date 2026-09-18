@@ -6,3 +6,5 @@ User amendments take precedence over the master spec: emotional events may be re
 Arcs: notice → approach → learn → stay → care → understand → say. Girl's visible details represent knowing her, hero's details represent recognizing his own emotions. Neither person is saved or made whole by the other.
 
 The recurring architectural line connects spaces. Pixelization enters through a close examination of the hand, not an apparent loss of self. Care is reciprocal and does not exhaust the girl. Walking together happens before the question; after it, only breathing, wind and light.
+
+Visual amendment: user rejected the realistic portraits and rustic clothing, requesting drawn fantasy characters and a moonlit ivory atmosphere based on their new illustration reference. Girl wears an elaborate white gown; hero shares the drawing style with dark clothing and no glow. This changes art direction, not the emotional narrative or the open ending.

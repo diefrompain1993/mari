@@ -1,6 +1,8 @@
-# Art direction
-Graphite architecture, tactile paper, ivory light, desaturated amber, midnight blue. Original editorial/painterly illustration, restrained facial stylization. No glossy fantasy or generic neon.
+# Art direction — fantasy revision
+The user's illustrated moonlit reference supersedes the earlier realistic/editorial direction. Characters must be visibly drawn fantasy visual-novel figures: fine ink contours, stylized eyes and facial planes, painted color shapes, no photographic skin or realistic costume portraits.
 
-Concept triptych: art/concept-triptych.png. Selected atmosphere: night frame's human scale and rich shadows, first frame's suspended architecture, final frame's open air. Reduce the concept's ornate architecture in game assets. Concept figures are not final character designs.
+Girl: pearl/ivory layered floor-length gown, lace-front fitted bodice, draped bell sleeves, small flower ornament, short feathery pale bob. Her whiteness belongs to the costume and progressive light reveal; the final face is legible. Hero: midnight navy long split-tail coat, high collar, silver lacing and embroidery, dark trousers and boots. No aura or luminous silhouette in his fully drawn form.
 
-Layer backgrounds, character cutouts, foreground architecture, lighting and sparse atmosphere. Final identities and seated poses now use the supplied private photo references; all clothing is original. Distinct pixel assets use deliberate low-resolution clusters. Character-generation prompts are retained in art/prompts.json; selected replacement environment sources are recorded in art/environment-sources.json.
+Environments use moonlit indigo, silver tracery, crescent motifs, imagined spires and flowing architectural lines. The previous rustic wrap tunic, modern short jacket, realistic faces and warm realistic interiors are rejected. Preserve narrative independence and emotional causality despite the more ornate fantasy design.
+
+Selected masters: art/fantasy. Prompt set and provenance: art/fantasy-generation.json. Runtime assets: public/assets/art-v2, exported with scripts/prepare-fantasy.mjs. Original identity photographs stay outside the project. Pixel stages remain deliberate pixel art; the sparse authored opening sketch is retained.

@@ -1,4 +1,6 @@
 # QA log
+Fantasy art revision: replaced standing/seated identity art, gradual girl reveal stages, hero drawn/pixel stages and nine environments according to the user's illustrated reference. Kept the sparse authored opening and the existing intentional pixel environment. Updated seated facing, sprite spacing and reveal mask width for long coats and the white gown. Rejected realistic art is archived outside public. Publication remains paused: private repository and manually disabled Pages workflow.
+
 2026-09-18: strict TypeScript and production compilation completed; 8 pure logic tests passed (save validation, unavailable storage, narrative stage reconstruction, single unanswered finale, no-failure puzzle/crowd rules).
 
 First mobile WebKit pass: all four mini-game controls responded. Scene traversal found stale hidden character texture after environment unloading; changed lifecycle to retain shared character textures. Inspected initial mobile screenshots; corrected banding in dialogue shade, replaced low-resolution key backgrounds, added progressive drawn intro.
@@ -24,3 +26,7 @@ Deployment: source pushed to private diefrompain1993/mari. GitHub Pages creation
 User then explicitly requested making the repository public. Visibility changed to PUBLIC and Pages configuration succeeded with HTTPS at https://diefrompain1993.github.io/mari/. Live deployment verification follows the workflow run.
 
 Live check succeeded in WebKit and Chromium: HTTP 200, story starts, saved text resumes after reload, debug API absent, no page/request errors; all 26 manifest images return 200. Workflow 35326890651 completed successfully. Final responsive polish anchors the dialogue shade to the current viewport bottom after resize; the canvas and touch regression remains covered.
+
+Fantasy revision final verification (2026-09-18, after user resumed): 8 logic tests, strict TypeScript/production build, and all 6 mobile browser tests passed (3 WebKit, 3 Chromium; 3.5 minutes). Separate scene capture completed 8 frames with no page errors or failed requests. Inspected final gown framing after x272 adjustment and seated alignment. Current preview: art/fantasy/game-preview.png. The historical 15:04 normal playthrough above predates this art replacement.
+
+Hosting remains paused: repository PRIVATE, Pages deleted, pages.yml disabled_manually. Privacy and disabled workflow were rechecked on this resumed pass. No public deployment was performed.

@@ -74,7 +74,7 @@ export class SceneManager {
     this.hero.visible = hero > 0;
     this.girl.visible = girl > 0;
     const seated = this.scene?.environment === 'room' || this.scene?.environment === 'cafe';
-    this.girl.scale.x = seated ? -1 : 1;
+    this.girl.scale.x = 1;
     if (hero)
       this.hero.setArt(
         this.assets.get(seated ? 'hero-seated' : "hero-" + hero),
@@ -98,9 +98,9 @@ export class SceneManager {
         : env === "light"
           ? 290
           : env === "room" || env === "cafe"
-            ? 325
+            ? 295
             : env === "finale"
-              ? 385
+              ? 350
               : env === "crowd"
                 ? 300
                 : 350;
@@ -121,15 +121,15 @@ export class SceneManager {
       );
     }
     const solo = this.stages.girl === 0;
-    this.hero.position.set(solo ? 195 : 124, height * 0.75);
-    this.girl.position.set(265, height * 0.75 - 6);
+    this.hero.position.set(solo ? 195 : 105, height * 0.75);
+    this.girl.position.set(272, height * 0.75 - 6);
     if (this.scene?.environment === 'room') {
-      this.hero.position.set(78, height*.79);
-      this.girl.position.set(305, height*.79);
+      this.hero.position.set(88, height*.72);
+      this.girl.position.set(300, height*.72);
     }
     if (this.scene?.environment === 'cafe') {
-      this.hero.position.set(80, height*.76);
-      this.girl.position.set(305, height*.76);
+      this.hero.position.set(88, height*.72);
+      this.girl.position.set(300, height*.72);
     }
     this.hero.resize(this.characterHeight("hero"));
     this.girl.resize(this.characterHeight("girl"));

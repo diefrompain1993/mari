@@ -1,4 +1,8 @@
 # Asset pipeline
+Current authority is the drawn-fantasy revision: art/fantasy-generation.json and scripts/prepare-fantasy.mjs. Selected generated PNG masters are copied to art/fantasy, then exported to public/assets/art-v2. The exporter preserves generated alpha; the generated image preview can display RGB haze stored under fully transparent pixels, so inspect the composited game rather than mistaking hidden RGB for a halo. Older export scripts below are historical and must not overwrite the current manifest.
+
+Rejected realistic runtime images were copied into art/archive-realism/runtime and removed from public after confirming the manifest references only art-v2. The old masters remain historical; they are not used by the current game. GitHub publication remains disabled.
+
 Built-in imagegen creates authored masters. Identity references remain at user-supplied paths outside the repository and public folder. Selected generated assets live in art/masters; game-ready compressed art in public/assets/art. Sheet extraction, resize and WebP export use Sharp. These steps only package art, not redraw likenesses.
 
 scripts/prepare-art.mjs records initial sheet extraction. scripts/update-art.mjs applies selected replacements. Manifest records ID, dimensions, loading class and estimated RGBA cost. Runtime paths use import.meta.env.BASE_URL. Pixel art is authored in its own style and uses nearest-neighbour sampling.

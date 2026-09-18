@@ -97,12 +97,13 @@ export class Character extends Container {
     } else if (this.transition && this.masker) {
       const p = this.progress.value;
       this.masker.clear();
+      const halfWidth = Math.max(125, (this.art?.width ?? 250) / 2 + 8);
       for (let row = 0; row < 50; row++) {
         const stagger = (Math.sin(row * 13.37) + 1) * 0.11;
-        const w = Math.max(0, Math.min(1, (p - stagger) / 0.78)) * 250;
+        const w = Math.max(0, Math.min(1, (p - stagger) / 0.78)) * halfWidth * 2;
         this.masker
           .rect(
-            -125,
+            -halfWidth,
             -this.baseHeight + (row * this.baseHeight) / 50,
             w,
             this.baseHeight / 50 + 1,
