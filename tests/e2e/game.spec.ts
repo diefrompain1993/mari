@@ -71,9 +71,14 @@ test('repeated choices finish, resizing keeps the scene visible and touch aligne
   for (const [beat,rounds] of [['night_conversation',3],['sort_memories',4]] as const) {
     await page.evaluate(id=>window.__VN_DEBUG__!.goToScene(id),beat);
     for(let round=0;round<rounds;round++) {
-      await page.waitForTimeout(300);
       const height=page.viewportSize()!.height;
-      await page.touchscreen.tap(195,height-(beat==='night_conversation'?159:200));
+      await expect(async () => {
+        const before=await page.evaluate(()=>window.__VN_DEBUG__!.dumpState().minigame) as {round:number;responding:number}|null;
+        if(!before || before.round>round || before.responding>0)return;
+        await page.touchscreen.tap(195,height-(beat==='night_conversation'?159:200));
+        const after=await page.evaluate(()=>window.__VN_DEBUG__!.dumpState().minigame) as {round:number;responding:number}|null;
+        expect(!after || after.round>round || after.responding>0).toBe(true);
+      }).toPass({timeout:5000,intervals:[300,500]});
       await expect.poll(()=>page.evaluate(()=>{
         const m=window.__VN_DEBUG__!.dumpState().minigame as {round:number}|null;
         return m?.round??99;

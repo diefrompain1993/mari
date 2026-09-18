@@ -20,6 +20,8 @@ export class SceneManager {
   private crowd: Sprite[] = [];
   private stages = { hero: 0, girl: 0 };
   private opening = false;
+  private dialogueShade?: Graphics;
+  private shadeHeight = 844;
   constructor(
     readonly root: Container,
     readonly assets: AssetManager,
@@ -42,7 +44,9 @@ export class SceneManager {
     this.world.addChildAt(this.background, 0);
     this.fx.set(scene.environment);
     this.overlay.removeChildren().forEach((c) => c.destroy());
-    this.overlay.addChild(shade(390, height));
+    this.dialogueShade = shade(390, height);
+    this.shadeHeight = height;
+    this.overlay.addChild(this.dialogueShade);
     this.foreground.clear();
     this.crowd.forEach((s) => s.destroy());
     this.crowd = [];
@@ -104,6 +108,7 @@ export class SceneManager {
   }
   layout(height: number) {
     this.height = height;
+    if (this.dialogueShade) this.dialogueShade.y = height - this.shadeHeight;
     if (this.background) {
       const scale = Math.max(
         390 / this.background.texture.width,

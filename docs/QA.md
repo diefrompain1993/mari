@@ -22,3 +22,5 @@ Final local regression: strict TypeScript/build, 8 logic tests, and all 6 browse
 Deployment: source pushed to private diefrompain1993/mari. GitHub Pages creation returned HTTP 422: “Your current plan does not support GitHub Pages for this repository.” No live site is claimed. Repository visibility remains private pending the user's hosting choice.
 
 User then explicitly requested making the repository public. Visibility changed to PUBLIC and Pages configuration succeeded with HTTPS at https://diefrompain1993.github.io/mari/. Live deployment verification follows the workflow run.
+
+Live check succeeded in WebKit and Chromium: HTTP 200, story starts, saved text resumes after reload, debug API absent, no page/request errors; all 26 manifest images return 200. Workflow 35326890651 completed successfully. Final responsive polish anchors the dialogue shade to the current viewport bottom after resize; the canvas and touch regression remains covered.
