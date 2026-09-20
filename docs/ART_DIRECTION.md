@@ -17,3 +17,7 @@ Replaced UI discs, title chips and checkmarks with torn manuscript leaves and lu
 Forest immersion refinement: collectible leaves are attached to five actual thread/branch coordinates in the 586 × 1266 background. World-to-screen conversion follows camera motion and portrait resizing. The forest uses top alignment so upper branches remain visible on compact screens. Selection opens a folded leaf in the center; its memory is typed below, with a first tap revealing remaining text and the next continuing. Reduced-motion preference skips the unfolding/sway. Selection view uses a shorter feathered shade instead of the large opaque panel.
 
 Latest user refinement: forest leaves have no external emotion labels. The title appears only inside the opened sheet. Invisible touch areas remain 60 × 60.
+
+Constellation: seven stars now occupy a fixed literal <3 composition. The two authored pixel strokes reveal over 2.2 seconds after all seven memories are collected, regardless of collection order. Reduced motion shows the completed strokes immediately. No external star title labels obscure the drawing.
+
+Hosting: the user explicitly requested reopening the repository and publishing the updated game to GitHub Pages on September 20. This supersedes the earlier hosting pause.

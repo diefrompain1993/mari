@@ -42,6 +42,12 @@ export class MinigameDirector {
   private controls = new Container();
   private rings = new Container();
   private clockHands: Graphics[] = [];
+  private constellation = 0;
+  private readonly starPoints = [[140,0],[65,90],[140,180],[230,0],[250,90],[315,135],[230,180]];
+  private readonly starPaths = [
+    [[140,0],[65,90],[140,180]],
+    [[230,0],[280,0],[315,30],[315,55],[280,90],[250,90],[280,90],[315,120],[315,150],[280,180],[230,180]],
+  ];
   private forestNodes: {node:Container;leaf:Container;thread:Graphics;index:number}[] = [];
   private forestRead?: {progress:number;index:number;paper:Graphics;title:Text;text:string;chars:number};
   // Attachment and leaf centers in the authored 586 × 1266 forest painting.
@@ -132,6 +138,10 @@ export class MinigameDirector {
     const s=this.state!;s.awaiting=true;s.responding=.35;
     this.clearControls();this.say(text);this.message.y=this.H-305;
     this.instruction.text='Продолжи, когда прочитаешь';
+    if(s.kind==='stars'&&s.collected.length===7){
+      this.constellation=0;s.responding=this.scenes.motionReduced?.35:2.4;
+      this.instruction.text='Семь звёзд. Теперь видно, что их связывает.';
+    }
     this.action('Дальше',this.H-100,()=>{
       if(this.forestRead&&this.forestRead.chars<this.forestRead.text.length){
         this.forestRead.chars=this.forestRead.text.length;this.message.text=this.forestRead.text;return;
@@ -165,7 +175,7 @@ export class MinigameDirector {
     this.instruction.text=`${s.collected.length} / ${data.items.length} · можно выбирать в любом порядке`;
     data.items.forEach((item,i)=>{
       const p=this.nodePosition(i,data.items.length),chosen=s.collected.includes(i);
-      const c=new Container();c.position.set(p.x,p.y);c.eventMode='static';c.cursor='pointer';c.hitArea=new Rectangle(-55,-32,110,88);
+      const c=new Container();c.position.set(p.x,p.y);c.eventMode='static';c.cursor='pointer';c.hitArea=s.kind==='stars'?new Rectangle(-30,-30,60,60):new Rectangle(-55,-32,110,88);
       const g=new Graphics();
       // Soft pools of night preserve contrast without turning artifacts into buttons.
       for(let n=10;n>0;n--)g.ellipse(0,12,34+n*3,31+n*2).fill({color:0x080f21,alpha:.055});
@@ -186,18 +196,45 @@ export class MinigameDirector {
       const name=label(item.title,0,32,13,true,chosen?0xb1b7bc:0xfff2d9,108);name.anchor.set(.5,0);name.style.align='center';
       name.style.stroke={color:0x0c1426,width:3};
       name.style.dropShadow={color:0x030713,alpha:1,blur:5,distance:0,angle:0};
-      c.addChild(name);
+      if(s.kind!=='stars')c.addChild(name);else name.destroy();
       if(!chosen)c.on('pointertap',e=>{e.stopPropagation();if(s.awaiting||s.responding>0)return;s.collected.push(i);this.chime();this.respond(item.text);});
       this.controls.addChild(c);
     });
   }
   private nodePosition(i:number,count:number) {
+    if(this.state?.kind==='stars')return this.starPosition(this.starPoints[i]);
     if(this.state?.kind==='fragments'){
       const b=this.branches[i];return this.layer.toLocal(this.scenes.backgroundPoint(b.px,b.py));
     }
     const columns=count>5?3:2,rows=Math.ceil(count/columns);
     const col=i%columns,row=Math.floor(i/columns);
     return{x:columns===3?75+col*120:105+col*175,y:115+row*Math.min(108,(this.H-450)/Math.max(1,rows-1))+(col%2?12:0)};
+  }
+  private starPosition(p:number[]){return{x:p[0],y:115+p[1]*Math.min(210,this.H-450)/180};}
+  private drawConstellation(sec:number){
+    const s=this.state!;
+    if(s.collected.length===7){
+      this.constellation=this.scenes.motionReduced?1:Math.min(1,this.constellation+sec/2.2);
+      // Fixed, separate strokes form the literal <3 regardless of selection order.
+      for(const path of this.starPaths){
+        const pixels:{x:number;y:number}[]=[];
+        for(let j=1;j<path.length;j++){
+          const a=this.starPosition(path[j-1]),b=this.starPosition(path[j]),steps=Math.ceil(Math.hypot(b.x-a.x,b.y-a.y)/3);
+          for(let k=0;k<steps;k++)pixels.push({x:Math.round((a.x+(b.x-a.x)*k/steps)/3)*3,y:Math.round((a.y+(b.y-a.y)*k/steps)/3)*3});
+        }
+        const end=Math.ceil(pixels.length*this.constellation);
+        for(let j=0;j<end;j++){
+          const p=pixels[j],head=1-Math.min(1,(end-j)/14);
+          this.art.rect(p.x-3,p.y-3,9,9).fill({color:0xaacfff,alpha:.09+head*.1});
+          this.art.rect(p.x,p.y,3,3).fill({color:head>.2?0xfff8df:0xc6d9ef,alpha:.82});
+        }
+      }
+    }
+    if(s.awaiting)for(const i of s.collected){
+      const p=this.nodePosition(i,7),glow=s.collected.length===7?1:.6;
+      this.art.rect(p.x-6,p.y-6,12,12).fill({color:0xb7d6ff,alpha:.12*glow});
+      this.art.rect(p.x-1.5,p.y-9,3,18).rect(p.x-6,p.y-1.5,12,3).fill({color:0xfff0c9,alpha:glow});
+    }
   }
   private renderForest(){
     const s=this.state!,data=bookGames.fragments!;
@@ -304,10 +341,7 @@ export class MinigameDirector {
     if(s.done){if(s.responding===0)this.complete();return;}
     this.art.clear();
     const count=this.roundCount();
-    if(s.kind==='stars'&&s.collected.length>1){
-      s.collected.forEach((i,j)=>{const p=this.nodePosition(i,count);if(j===0)this.art.moveTo(p.x,p.y);else this.art.lineTo(p.x,p.y);});
-      this.art.stroke({color:palette.gold,width:1,alpha:.55});
-    }
+    if(s.kind==='stars')this.drawConstellation(sec);
     for(let i=0;i<count;i++)this.art.circle(195+(i-(count-1)/2)*14,this.H-58,2).fill({color:palette.gold,alpha:i<=s.round?.9:.25});
     if(s.moving){
       s.progress=Math.min(1,s.progress+sec/.8);
@@ -318,6 +352,7 @@ export class MinigameDirector {
   }
   complete(){if(!this.state)return;const done=this.finish;this.stop();done?.();}
   stop(){
+    this.constellation=0;
     if(this.forestRead)gsap.killTweensOf(this.forestRead);this.forestRead=undefined;
     this.scenes.hero.alpha=1;this.scenes.girl.alpha=1;this.scenes.npc.alpha=1;
     this.state=undefined;this.finish=undefined;this.layer.visible=false;this.art.clear();this.clearControls();
@@ -327,6 +362,7 @@ export class MinigameDirector {
     this.message.text='';this.message.style.fontSize=18;this.instruction.text='';
   }
   snapshot(){return this.state?{...this.state,
+    constellation:this.constellation,
     targets:bookGames[this.state.kind]?.items.map((_,i)=>this.nodePosition(i,bookGames[this.state!.kind]!.items.length))
   }:null;}
   resize(height:number){

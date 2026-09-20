@@ -90,3 +90,16 @@ test('forest leaves stay on branches and unfold before reading',async({page},inf
   expect(((await state(page)).minigame as {collected:number[]}).collected).toContain(2);
  }
 });
+test('seven stars reveal a fixed pixel <3 after the last selection',async({page},info)=>{
+ await ready(page);await jump(page,'join_stars');const h=page.viewportSize()!.height;
+ for(const i of [6,0,4,2,5,1,3]){
+  const m=(await state(page)).minigame as {targets:{x:number;y:number}[]};
+  await tap(page,m.targets[i].x,m.targets[i].y);
+  if(i!==3){await page.waitForTimeout(400);await tap(page,195,h-76);}
+ }
+ await expect.poll(async()=>((await state(page)).minigame as {constellation:number}).constellation).toBe(1);
+ await page.screenshot({path:`art/qa/heart-${info.project.name}.png`});
+ expect(((await state(page)).minigame as {collected:number[]}).collected).toHaveLength(7);
+ await page.waitForTimeout(300);await tap(page,195,h-76);
+ await expect.poll(async()=>(await state(page)).minigame).toBeNull();
+});
