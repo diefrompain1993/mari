@@ -66,7 +66,7 @@ export class DialogueSystem {
     this.layer.position.y = height - this.panelHeight;
     this.hint.y = 24 + this.fullHeight + 22;
     this.layer.hitArea = new Rectangle(0, -22, 390, this.panelHeight + 22);
-    const names = {girl:'ДЕВУШКА ИЗ СВЕТА', hero:'СТРАННИК', thought:'ПРО СЕБЯ', narrator:'', binder:'ПЕРЕПЛЁТЧИК', letter:'ДЕВУШКА С ПИСЬМОМ', musician:'МУЗЫКАНТ', painter:'ХУДОЖНИК', keeper:'ХРАНИТЕЛЬНИЦА'};
+    const names = {girl:'ДЕВУШКА ИЗ СВЕТА', hero:'СТРАННИК', thought:'ПРО СЕБЯ', narrator:'ПРО СЕБЯ', binder:'ПЕРЕПЛЁТЧИК', letter:'ДЕВУШКА С ПИСЬМОМ', musician:'МУЗЫКАНТ', painter:'ХУДОЖНИК', keeper:'ХРАНИТЕЛЬНИЦА'};
     this.who.text = this.final ? '' : names[beat.speaker ?? 'narrator'];
     this.hint.visible = false;
     document.getElementById("sr-story")!.textContent = this.full;
