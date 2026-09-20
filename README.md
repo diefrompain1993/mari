@@ -14,4 +14,6 @@ npm run test:e2e
 
 Publish dist through the included GitHub Pages Actions workflow. In repository Settings → Pages, choose GitHub Actions. No server or environment keys are required. All asset paths support repository subdirectories. Source photographs must never be copied into public.
 
-Development scene access: `?scene=silence_room` or `window.__VN_DEBUG__.goToScene('night_silence')`. Debug access is absent in production. See docs for narrative amendments, art direction, asset pipeline and verified QA status.
+Development scene access: `?scene=night_pages` or `window.__VN_DEBUG__.goToScene('night_silence')`. Debug access is absent in production. See docs for narrative amendments, art direction, asset pipeline and verified QA status.
+
+Current revision follows the original book reference: blank last page, forest fragments, constellation, paper city, Archive and late personal reveal. Whole-world line → pixel → drawn progression and short tap interactions remain. Read docs/SCENARIO.md for dialogue. Browser tests use port 5187 with strict port binding; manual preview uses 5188. Regenerate the readable script with node scripts/export-scenario.mjs.

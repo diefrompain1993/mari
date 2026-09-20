@@ -1,144 +1,61 @@
-import { test, expect } from "@playwright/test";
-import sharp from 'sharp';
-test("boot, touch, scenes, screenshots, save and quiet final", async ({
-  page,
-}, info) => {
-  const errors: string[] = [];
-  page.on("pageerror", (e) => errors.push(e.message));
-  page.on("response", (r) => {
-    if (r.status() >= 400) errors.push(`${r.status()} ${r.url()}`);
-  });
-  await page.goto("/");
-  await expect(page.locator("#boot")).toBeHidden();
-  const height = page.viewportSize()!.height;
-  await page.touchscreen.tap(195, height * .67 + 24);
-  await page.waitForTimeout(1000);
-  await expect
-    .poll(() => page.evaluate(() => window.__VN_DEBUG__?.dumpState().busy))
-    .toBe(false);
-  await expect.poll(() => page.evaluate(() => (window.__VN_DEBUG__!.dumpState().audio as {track:string}).track)).toBe('prologue');
-  if (await page.evaluate(() => typeof AudioContext !== 'undefined')) {
-    await expect.poll(() => page.evaluate(() => (window.__VN_DEBUG__!.dumpState().audio as {context:string}).context)).toBe('running');
-    await expect.poll(() => page.evaluate(() => (window.__VN_DEBUG__!.dumpState().audio as {playing:boolean}).playing)).toBe(true);
+import {test,expect,type Page} from '@playwright/test';
+const state=(p:Page)=>p.evaluate(()=>window.__VN_DEBUG__!.dumpState());
+const frame=(p:Page)=>p.evaluate(()=>new Promise<void>(r=>requestAnimationFrame(()=>requestAnimationFrame(()=>r()))));
+async function jump(p:Page,id:string){await p.evaluate(id=>window.__VN_DEBUG__!.goToScene(id),id);await frame(p);}
+async function tap(p:Page,x:number,y:number){await p.touchscreen.tap(x,y);await frame(p);}
+async function ready(p:Page){await p.goto('/');await p.waitForFunction(()=>window.__VN_DEBUG__);await expect(p.locator('#boot')).toBeHidden();await frame(p);}
+test('complete every book interaction through ordinary touches',async({page},info)=>{
+ await ready(page);const h=page.viewportSize()!.height;const errors:string[]=[];page.on('pageerror',e=>errors.push(e.message));
+ for(const id of ['write_page','collect_fragments','follow_start','fourteen_time','night_conversation','join_stars','ask_musician','reread_book','name_fragments']){
+  await jump(page,id);const started=Date.now();let shots=0;
+  while((await state(page)).minigame){
+   expect(Date.now()-started).toBeLessThan(45000);
+   const m=(await state(page)).minigame as {kind:string;moving:boolean;responding:number;done:boolean;awaiting:boolean;collected:number[];targets?:{x:number;y:number}[]};
+   if (!m) break;
+   if(m.moving||m.responding>0||m.done){await page.waitForTimeout(120);continue;}
+   if(m.awaiting){if(!shots++){await page.screenshot({path:`art/qa/book-${info.project.name}-${id}.png`});}await tap(page,195,h-76);}
+   else if(['fragments','stars','archive','name'].includes(m.kind)){
+    const i=m.targets!.findIndex((_,i)=>!m.collected.includes(i)),p=m.targets![i];await tap(page,p.x,p.y);
+   }else await tap(page,195,h-(['night','musician'].includes(m.kind)?181:92));
   }
-  const scenes = [
-    "prologue_intro",
-    "light_follow",
-    "approach_fourteen_time",
-    "silence_room",
-    "noise_crowd",
-    "noise_cafe",
-    "resolution_8bit",
-    "resolution_16bit",
-    "finale_question",
-  ];
-  for (const id of scenes) {
-    await page.evaluate((id) => window.__VN_DEBUG__!.goToScene(id), id);
-    await page.waitForTimeout(800);
-    await page.screenshot({ path: `art/qa/${info.project.name}-${id}.png` });
-    expect(
-      await page.evaluate(
-        () => document.documentElement.scrollWidth <= innerWidth,
-      ),
-    ).toBe(true);
-  }
-  await page.evaluate(() => window.__VN_DEBUG__!.goToScene("night_silence"));
-  await page.touchscreen.tap(195, height - 110);
-  expect(await page.evaluate(() => window.__VN_DEBUG__!.dumpState().beat)).toBe(
-    "night_silence",
-  );
-  await page.evaluate(() => window.__VN_DEBUG__!.goToScene("noise_cafe"));
-  await page.reload();
-  await expect(page.locator("#boot")).toBeHidden();
-  await page.touchscreen.tap(195, height * .67 + 24);
-  await expect
-    .poll(() => page.evaluate(() => window.__VN_DEBUG__?.dumpState().scene))
-    .toBe("noise_cafe");
-  await page.evaluate(() => window.__VN_DEBUG__!.goToScene("final_question"));
-  await page.waitForTimeout(2500);
-  expect(await page.evaluate(() => window.__VN_DEBUG__!.dumpState().beat)).toBe(
-    "final_question",
-  );
-  await page.touchscreen.tap(195, height - 100);
-  expect(await page.evaluate(() => window.__VN_DEBUG__!.dumpState().beat)).toBe(
-    "final_question",
-  );
-  expect(errors).toEqual([]);
+  if(id==='follow_start')expect(Date.now()-started).toBeLessThan(12000);
+ }
+ expect(errors).toEqual([]);
 });
-test('repeated choices finish, resizing keeps the scene visible and touch aligned', async ({page}, info) => {
-  await page.goto('/');
-  await expect(page.locator('#boot')).toBeHidden();
-  for (const [beat,rounds] of [['night_conversation',3],['sort_memories',4]] as const) {
-    await page.evaluate(id=>window.__VN_DEBUG__!.goToScene(id),beat);
-    for(let round=0;round<rounds;round++) {
-      const height=page.viewportSize()!.height;
-      await expect(async () => {
-        const before=await page.evaluate(()=>window.__VN_DEBUG__!.dumpState().minigame) as {round:number;responding:number}|null;
-        if(!before || before.round>round || before.responding>0)return;
-        await page.touchscreen.tap(195,height-(beat==='night_conversation'?159:200));
-        const after=await page.evaluate(()=>window.__VN_DEBUG__!.dumpState().minigame) as {round:number;responding:number}|null;
-        expect(!after || after.round>round || after.responding>0).toBe(true);
-      }).toPass({timeout:5000,intervals:[300,500]});
-      await expect.poll(()=>page.evaluate(()=>{
-        const m=window.__VN_DEBUG__!.dumpState().minigame as {round:number}|null;
-        return m?.round??99;
-      }),{timeout:12000}).toBeGreaterThan(round);
-    }
-    expect(await page.evaluate(()=>window.__VN_DEBUG__!.dumpState().minigame)).toBeNull();
+test('new checkpoints, readable text, resizing and open ending',async({page},info)=>{
+ await ready(page);await jump(page,'keeper_answer');await page.reload();await page.waitForFunction(()=>window.__VN_DEBUG__);await frame(page);await tap(page,195,page.viewportSize()!.height*.67+24);
+ await expect.poll(async()=>(await state(page)).beat).toBe('keeper_answer');
+ for(const h of [664,844]){await page.setViewportSize({width:390,height:h});
+  for(const id of ['self_portrait','new_detail','night_honest_end','constellation_person','keeper_choice','confession_calm']){
+   await jump(page,id);await tap(page,195,h-95);const d=(await state(page)).dialogue as {textBottom:number;hintTop:number};expect(d.textBottom).toBeLessThan(d.hintTop);expect(d.hintTop).toBeLessThan(h-15);
   }
-  for(const height of [844,664,844]) {
-    await page.setViewportSize({width:390,height});
-    await page.evaluate(()=>window.__VN_DEBUG__!.goToScene('night_sound'));
-    await page.waitForTimeout(1000);
-    const pixels=await page.screenshot({path:`art/qa/${info.project.name}-resize-${height}.png`});
-    const stats=await sharp(pixels).resize({width:195}).stats();
-    expect(stats.channels[0].stdev).toBeGreaterThan(15);
-    await expect.poll(()=>page.evaluate(()=>(window.__VN_DEBUG__!.dumpState().dialogue as {typing:boolean}).typing)).toBe(false);
-    await page.touchscreen.tap(195,height-100);
-    await expect.poll(()=>page.evaluate(()=>window.__VN_DEBUG__!.dumpState().beat)).toBe('night_what');
-  }
+  await page.screenshot({path:`art/qa/book-${info.project.name}-text-${h}.png`});
+ }
+ await jump(page,'final_question');await tap(page,195,740);expect((await state(page)).beat).toBe('final_question');
 });
-test("all interaction controls respond to touch", async ({ page }) => {
-  await page.goto("/");
-  await expect(page.locator("#boot")).toBeHidden();
-  const height = page.viewportSize()!.height;
-  await page.touchscreen.tap(195, height * .67 + 24);
-  for (const id of [
-    "follow_start",
-    "fourteen_time",
-    "night_conversation",
-    "stay_close",
-    "sort_memories",
-  ]) {
-    await page.evaluate((id) => window.__VN_DEBUG__!.goToScene(id), id);
-    expect(
-      await page.evaluate(() => window.__VN_DEBUG__!.dumpState().minigame),
-    ).not.toBeNull();
-    if (id === "fourteen_time") {
-      for (let i = 0; i < 4; i++) await page.touchscreen.tap(195, 370);
-      await expect
-        .poll(() =>
-          page.evaluate(() => window.__VN_DEBUG__!.dumpState().minigame),
-        )
-        .toBeNull();
-    } else if (id === "night_conversation" || id === "sort_memories") {
-      await page.touchscreen.tap(190, id === "night_conversation" ? height - 159 : height - 200);
-      expect((
-        (await page.evaluate(
-          () => window.__VN_DEBUG__!.dumpState().minigame,
-        )) as { responding: number }
-      ).responding).toBeGreaterThan(0);
-      await page.evaluate(() => window.__VN_DEBUG__!.completeMinigame());
-    } else {
-      await page.mouse.move(190, 600);
-      await page.mouse.down();
-      await page.waitForTimeout(1200);
-      await page.mouse.up();
-      const state = (await page.evaluate(
-        () => window.__VN_DEBUG__!.dumpState().minigame,
-      )) as { progress: number };
-      expect(state.progress).toBeGreaterThan(0);
-      await page.evaluate(() => window.__VN_DEBUG__!.completeMinigame());
-    }
-  }
+test('book world assets and reveal scenes load in mobile engines',async({page},info)=>{
+ const errors:string[]=[];page.on('pageerror',e=>errors.push(e.message));page.on('response',r=>{if(r.status()>=400)errors.push(r.url());});await ready(page);
+ for(const id of ['blank_page','self_portrait','forest_start','new_detail','good_here','hill_start','city_arrival','archive_start','name_reveal','human_reveal','confession_choice']){
+  await jump(page,id);await page.waitForTimeout(2800);await page.screenshot({path:`art/qa/book-${info.project.name}-${id}.png`});
+ }
+ expect(errors).toEqual([]);
+});
+test('settings persist, score is long, and targets remain legible',async({page},info)=>{
+ await ready(page);await jump(page,'collect_fragments');
+ await page.screenshot({path:`art/qa/polish-${info.project.name}-fragments.png`});
+ await jump(page,'join_stars');
+ await page.screenshot({path:`art/qa/polish-${info.project.name}-stars.png`});
+ await page.locator('#settings-button').click();
+ await expect(page.locator('#settings')).toBeVisible();
+ await page.locator('#music').fill('0.35');
+ await expect(page.locator('#music-value')).toHaveText('35%');
+ await page.locator('#reduced-motion').check();
+ await page.screenshot({path:`art/qa/polish-${info.project.name}-settings.png`});
+ await page.getByRole('button',{name:'Продолжить историю'}).click();
+ await expect(page.locator('#settings')).toBeHidden();
+ await page.locator('#settings-button').click();
+ await expect(page.locator('#music')).toHaveValue('0.35');
+ await expect(page.locator('#reduced-motion')).toBeChecked();
+ await page.getByRole('button',{name:'Продолжить историю'}).click();
+ await expect.poll(async()=>Number(((await state(page)).audio as {duration:number}).duration),{timeout:20000}).toBeGreaterThan(190);
 });

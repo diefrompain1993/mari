@@ -6,11 +6,13 @@ import { CameraDirector } from "./CameraDirector";
 import { FXManager } from "./FXManager";
 import { label, shade } from "../ui/canvas";
 import type { Scene, Settings } from "../content/types";
+import { backgroundId, characterIds, worldStyle } from '../content/visuals';
 export class SceneManager {
   readonly world = new Container();
   readonly overlay = new Container();
   readonly hero = new Character("hero");
   readonly girl = new Character("girl");
+  readonly npc = new Character('hero');
   readonly fx = new FXManager();
   readonly camera: CameraDirector;
   private background?: Sprite;
@@ -28,7 +30,7 @@ export class SceneManager {
     private settings: () => Settings,
   ) {
     root.addChild(this.world);
-    this.world.addChild(this.hero, this.girl, this.foreground);
+    this.world.addChild(this.hero, this.girl, this.npc, this.foreground);
     root.addChild(this.fx.layer, this.overlay);
     this.camera = new CameraDirector(
       this.world,
@@ -40,7 +42,7 @@ export class SceneManager {
     this.scene = scene;
     await this.assets.scene(scene);
     this.background?.destroy();
-    this.background = new Sprite(this.assets.get("env-" + scene.environment));
+    this.background = new Sprite(this.assets.get(backgroundId(scene, scene.hero)));
     this.world.addChildAt(this.background, 0);
     this.fx.set(scene.environment);
     this.overlay.removeChildren().forEach((c) => c.destroy());
@@ -51,40 +53,52 @@ export class SceneManager {
     this.crowd.forEach((s) => s.destroy());
     this.crowd = [];
     this.setStages(scene.hero, scene.girl, false);
+    this.npc.visible = !!scene.npc;
+    if (scene.npc) this.npc.setArt(this.assets.get(scene.npc), 295, this.settings().reducedMotion, false);
     this.layout(height);
     if (scene.environment === "crowd") {
-      for (let i = 0; i < 24; i++) {
-        const s = new Sprite(this.assets.get(i % 2 ? "hero-3" : "girl-6"));
+      for (let i = 0; i < 8; i++) {
+        const s = new Sprite(this.assets.get(i % 2 ? "hero-5" : "girl-pixel"));
         s.anchor.set(0.5, 1);
         s.height = 220 + (i % 4) * 22;
         s.scale.x = s.scale.y;
         s.tint = 0x000000;
-        s.alpha = i % 3 ? .86 : .65;
+        s.alpha = .28;
         if (i % 2) s.scale.x *= -1;
         s.position.set(((i * 91) % 470) - 40, height * 0.54 + (i % 4) * 65);
         this.world.addChild(s);
         this.crowd.push(s);
       }
     }
-    this.world.addChild(this.hero, this.girl, this.foreground);
+    this.world.addChild(this.hero, this.girl, this.npc, this.foreground);
     this.camera.cue("wide");
   }
   setStages(hero: number, girl: number, animate = true) {
+    if (!this.scene) return;
+    const previousStyle = worldStyle(this.stages.hero);
     this.stages = { hero, girl };
+    const style = worldStyle(hero);
+    this.fx.style = style;
+    const nextBackground = this.assets.get(backgroundId(this.scene, hero));
+    if (this.background && this.background.texture !== nextBackground) {
+      this.background.texture = nextBackground;
+      if (animate && previousStyle !== style && !this.settings().reducedMotion)
+        gsap.fromTo(this.background, { alpha: .2 }, { alpha: 1, duration: 1.5 });
+    }
     this.hero.visible = hero > 0;
     this.girl.visible = girl > 0;
-    const seated = this.scene?.environment === 'room' || this.scene?.environment === 'cafe';
+    const art = characterIds(this.scene, hero, girl);
     this.girl.scale.x = 1;
     if (hero)
       this.hero.setArt(
-        this.assets.get(seated ? 'hero-seated' : "hero-" + hero),
+        this.assets.get(art.hero),
         this.characterHeight("hero"),
         this.settings().reducedMotion,
         animate,
       );
     if (girl)
       this.girl.setArt(
-        this.assets.get(seated ? (this.scene?.environment === 'room' && girl < 6 ? 'girl-seated-partial' : 'girl-seated') : "girl-" + girl),
+        this.assets.get(art.girl),
         this.characterHeight("girl"),
         this.settings().reducedMotion,
         animate,
@@ -120,7 +134,8 @@ export class SceneManager {
         (height - this.background.height) / 2,
       );
     }
-    const solo = this.stages.girl === 0;
+    const solo = this.stages.girl === 0 && !this.scene?.npc;
+    this.npc.position.set(285, height * .74);
     this.hero.position.set(solo ? 195 : 105, height * 0.75);
     this.girl.position.set(272, height * 0.75 - 6);
     if (this.scene?.environment === 'room') {
@@ -253,6 +268,7 @@ export class SceneManager {
     this.camera.update(time, this.height);
     this.hero.update(time, this.settings().reducedMotion);
     this.girl.update(time, this.settings().reducedMotion);
+    this.npc.update(time, this.settings().reducedMotion);
     this.fx.update(time, dt, this.height, this.settings().reducedMotion);
     if (!this.settings().reducedMotion)
       this.crowd.forEach((s, i) => {

@@ -1,0 +1,26 @@
+{
+  "line-world": {
+    "prompt": "Single portrait 9:19.5 raster background for a mobile romantic visual novel. Sparse hand drawn stickman-world aesthetic. Deep muted blue charcoal paper, just a few thin ivory pencil lines suggesting a winding path, an unfinished stairway and a tall open arch. Enormous empty spaces, no people, letters, text or UI. Ground around 70 percent down, bottom 22 percent quiet dark for dialogue. Very simple slightly wobbly lines drawn by hand, NOT detailed architecture, not painterly fantasy, no shading except subtle paper grain. Curious quiet mood, small distant ivory light. Buildings suggested in 4 strokes each. Not a polished vector drawing.",
+    "path": "C:\\Users\\aleks\\.codex\\generated_images\\01a0b116-6b79-71e2-9315-31760c0e16b1\\exec-3f170649-9248-4693-9440-896a46bc3bc6.png"
+  },
+  "pixel-garden": {
+    "prompt": "Single portrait 9:19.5 authentic hand authored 16-bit PIXEL ART background for a mobile romantic novel. Fantasy nocturnal garden with stepped path, tall arch taking form, an eccentric moon clock with NO numbers and a few white flowers. Strong visible square pixels, crisp deliberate limited navy slate violet ivory palette, no antialiasing or smooth gradients or painterly textures. Curious intimate mood. Ground at 70 percent down, clear standing places left/right, bottom22 percent dark quiet for dialogue. No people, text or interface. Deliberate environmental pixel art, not blurred pixelation.",
+    "path": "C:\\Users\\aleks\\.codex\\generated_images\\01a0b116-6b79-71e2-9315-31760c0e16b1\\exec-84bcbee0-f6ab-469c-a566-097cbe887137.png"
+  },
+  "pixel-room": {
+    "prompt": "Single portrait 9:19.5 authentic 16-bit PIXEL ART background: sheltered moonlit fantasy alcove, large open arched window with small crescent and stars, two simple navy upholstered seats facing inward at far left and far right, space between. Seat cushion tops at65 percent image height. No table, cups, cafe or restaurant. Intimate atmosphere of finally breathing easily beside someone. Crisp visible square pixel clusters, restricted navy slate lavender ivory palette. No smooth gradients, antialiasing, painterly texture. Bottom22 percent quiet navy for dialogue. No characters, text or UI.",
+    "path": "C:\\Users\\aleks\\.codex\\generated_images\\01a0b116-6b79-71e2-9315-31760c0e16b1\\exec-db855dd7-c91e-4783-adc7-1b76c4c0f4c3.png"
+  },
+  "pixel-passage": {
+    "prompt": "Single portrait 9:19.5 authentic hand authored 16-bit PIXEL ART environment for emotional visual novel. Symbolic crossroads of paths in a moonlit fantasy world: tall arches, layered bridges winding between deep navy walls, small opening of starlit sky ahead. Mood many directions but choosing to walk beside someone. No people, concert stage, stage beams, musical equipment, signs or text. Clear foreground ground at70 percent height. Deliberate crisp square pixel clusters, limited navy slate purple ivory. Bottom22 percent calm dark for dialogue. No smooth painting, photography, antialiasing or blur.",
+    "path": "C:\\Users\\aleks\\.codex\\generated_images\\01a0b116-6b79-71e2-9315-31760c0e16b1\\exec-209e8897-038c-403a-9f0d-250a946fd9f8.png"
+  },
+  "pixel-sprites": {
+    "prompt": "Convert the two reference character designs into ONE production sprite sheet of FOUR transparent full-body game sprites in four equally wide columns, all isolated with generous transparent gutters, no labels, no scenery. Authentic crisp 16-bit pixel art with deliberately drawn square clusters, not smooth painted anime. Ref1 female ivory laced gown, short pale bob and flower; ref2 male brown hair, dark midnight coat silver lacing. Left to right: 1 woman standing facing slightly left, 2 same woman seated facing left on an invisible seat, 3 man seated facing right on an invisible seat, 4 man standing facing right. Entire figures including feet/hem, no cropping. Matching natural adult proportions, NOT chibi, no weapons. Male no halo or glow. Female ivory brightness confined to silhouette, no large aura. Limited palette navy ivory slate and hair brown. Real alpha transparency, no shadow or colored backdrop. Canvas wide 4:1, each cell same width, figures centered within respective column. Reference identities and costumes remain recognizable but explicitly low resolution pixel rendering.",
+    "path": "C:\\Users\\aleks\\.codex\\generated_images\\01a0b116-6b79-71e2-9315-31760c0e16b1\\exec-62eae9f8-15aa-411f-be10-02e7b74398c6.png"
+  },
+  "stick": {
+    "prompt": "Sparse ivory pencil stick figure with oval head and single-line torso, arms and legs. Transparent raster, no clothing, hair, features or glow.",
+    "path": "C:/Users/aleks/.codex/generated_images/01a0b116-6b79-71e2-9315-31760c0e16b1/exec-5d9183b7-b780-47b7-af73-1391f3a3b439.png"
+  }
+}

@@ -1,6 +1,7 @@
 import { Assets, Texture } from "pixi.js";
 import manifest from "../content/asset-manifest.json";
 import type { Scene } from "../content/types";
+import { backgroundId, characterIds } from '../content/visuals';
 export class AssetManager {
   private loaded = new Map<string, Texture>();
   private pending = new Map<string, Promise<Texture>>();
@@ -20,7 +21,7 @@ export class AssetManager {
       if (!entry) throw new Error("Unknown art: " + id);
       promise = Assets.load<Texture>(import.meta.env.BASE_URL + entry.url)
         .then((t) => {
-          if (id === "env-pixel" || /^hero-[45]$/.test(id))
+          if (id.includes('pixel') || /^hero-[45]$/.test(id) || /env-book-(star-hill|paper-city|library)/.test(id) || (id.startsWith('npc-') && id !== 'npc-binder'))
             t.source.scaleMode = "nearest";
           this.loaded.set(id, t);
           return t;
@@ -31,21 +32,23 @@ export class AssetManager {
     return promise;
   }
   required(scene: Scene) {
-    const ids = new Set(["env-" + scene.environment]);
-    if (scene.hero) ids.add("hero-" + scene.hero);
-    if (scene.girl) ids.add("girl-" + scene.girl);
+    const ids = new Set<string>();
+    let hero = scene.hero, girl = scene.girl;
+    const add = () => {
+      ids.add(backgroundId(scene, hero));
+      const art = characterIds(scene, hero, girl);
+      if (hero) ids.add(art.hero);
+      if (girl) ids.add(art.girl);
+    };
+    add();
+    if (scene.npc) ids.add(scene.npc);
     for (const b of scene.beats) {
-      if (b.hero) ids.add("hero-" + b.hero);
-      if (b.girl) ids.add("girl-" + b.girl);
+      hero = b.hero ?? hero; girl = b.girl ?? girl; add();
     }
     if (scene.environment === "crowd") {
-      ids.add("hero-3");
-      ids.add("girl-6");
+      ids.add("hero-5");
+      ids.add("girl-pixel");
     }
-    if (scene.environment === 'room' || scene.environment === 'cafe') {
-      ids.add('hero-seated'); ids.add('girl-seated');
-    }
-    if (scene.environment === 'room') ids.add('girl-seated-partial');
     return [...ids];
   }
   async scene(scene: Scene) {

@@ -1,6 +1,7 @@
 import { Application, Container, Graphics } from "pixi.js";
 import gsap from "gsap";
 import { story, findScene, stagesAt } from "../content/story";
+import { worldStyle } from '../content/visuals';
 import type { SaveData, Settings } from "../content/types";
 import { AssetManager } from "./AssetManager";
 import { SaveManager, defaults } from "./SaveManager";
@@ -72,7 +73,7 @@ export class GameDirector {
     await document.fonts.ready;
     await this.assets.scene(story[0]);
     await this.scenes.enter(story[0], this.height);
-    this.scenes.setOpening(true);
+    this.scenes.setOpening(false);
     this.scenes.hero.visible = false;
     this.dialogue.hide();
     this.startLayer
@@ -83,7 +84,7 @@ export class GameDirector {
       .lineTo(195, this.height * 0.39)
       .stroke({ color: 0xe7dac4, width: 1, alpha: 0.7 });
     const text = label(
-      "У каждой истории\nесть первая линия.",
+      "Последняя страница\nпока пуста.",
       195,
       this.height * 0.43,
       30,
@@ -92,7 +93,7 @@ export class GameDirector {
     text.anchor.set(0.5, 0);
     text.style.align = "center";
     const b = button(
-      this.save.load() ? "Продолжить" : "Начать",
+      this.save.load() ? "Продолжить" : "Открыть книгу",
       85,
       this.height * 0.67,
       220,
@@ -139,8 +140,7 @@ export class GameDirector {
     this.pauseRemaining = 0;
     const uncover = transition
       ? await this.transitions.cover(
-          story[index].chapter === "resolution" ||
-            story[this.data.scene].chapter === "resolution",
+          worldStyle(story[index].hero) === 'pixel',
           this.height,
           story[index].environment,
         )
@@ -157,7 +157,7 @@ export class GameDirector {
       }
       this.data.scene = index;
       this.data.beat = beat;
-      this.scenes.setOpening(index === 0 && beat < 7);
+      this.scenes.setOpening(false);
       this.audio.enter(story[index]);
       uncover();
       if (transition && beat === 0) await this.scenes.title(story[index]);
@@ -294,10 +294,20 @@ export class GameDirector {
       reducedMotion:
         document.querySelector<HTMLInputElement>("#reduced-motion")!,
     };
+    const refresh = () => {
+      for (const id of ['music', 'sfx', 'text-speed']) {
+        const field = document.getElementById(id) as HTMLInputElement;
+        document.getElementById(id+'-value')!.textContent = id === 'text-speed'
+          ? Number(field.value) < 30 ? 'Неспешно' : Number(field.value) > 45 ? 'Быстро' : 'Размеренно'
+          : Math.round(Number(field.value)*100)+'%';
+      }
+      document.documentElement.dataset.motion = fields.reducedMotion.checked ? 'reduced' : 'full';
+    };
     document.getElementById("settings-button")!.onclick = () => {
       for (const k of ["music", "sfx", "textSpeed"] as const)
         fields[k].value = String(this.data.settings[k]);
       fields.reducedMotion.checked = this.data.settings.reducedMotion;
+      refresh();
       this.pause(true);
       dialog.showModal();
     };
@@ -315,6 +325,7 @@ export class GameDirector {
           reducedMotion: fields.reducedMotion.checked,
         };
         this.audio.update(this.data.settings);
+        refresh();
         this.persist();
       });
     let confirmRestart = false;

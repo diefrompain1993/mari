@@ -17,8 +17,8 @@ export type Environment =
   | "thought"
   | "finale"
   | "pixel";
-export type GameKind = "follow" | "clock" | "night" | "crowd" | "sort";
-export type Speaker = "thought" | "hero" | "girl";
+export type GameKind = "follow" | "clock" | "night" | "crowd" | "sort" | 'page' | 'fragments' | 'stars' | 'musician' | 'archive' | 'name';
+export type Speaker = "thought" | "hero" | "girl" | 'narrator' | 'binder' | 'letter' | 'musician' | 'painter' | 'keeper';
 export interface Beat {
   id: string;
   text?: string;
@@ -39,6 +39,9 @@ export interface Scene {
   environment: Environment;
   hero: number;
   girl: number;
+  background?: string;
+  fullBackground?: string;
+  npc?: string;
   beats: Beat[];
 }
 export interface Settings {

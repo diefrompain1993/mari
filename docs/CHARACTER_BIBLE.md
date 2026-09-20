@@ -9,3 +9,5 @@ Retain short layered shag/bob, feathery fringe, almond-shaped grey-green eyes an
 
 ## Continuity
 Standing and seated sprites use transparent alpha and matching costume details. The seated heroine faces left and the hero right without mirroring her ornament. Identity references remain outside the repository. New generation prompts and selected source paths are recorded in art/fantasy-generation.json; the rejected assets are not runtime authorities.
+
+Progression correction: the opening hero is now a literal raster stick figure (oval and single-line limbs), not an outlined clothed figure. Stage 1 lasts through the first conversations. Stage 4 begins at new_detail; stage 5 follows the honest night conversation and remains through inner recognition. Stage 6 is reserved for human_reveal. Both seated characters have dedicated authored pixel sprites. Their faces are expressive within the pixel style; detailed drawn portraits do not appear in those scenes.

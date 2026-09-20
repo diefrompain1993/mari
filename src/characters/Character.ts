@@ -30,6 +30,16 @@ export class Character extends Container {
       this.resize(height);
       return;
     }
+    // Settle an interrupted reveal before starting the next one.
+    gsap.killTweensOf(this.progress);
+    if (this.art) { this.art.mask = null; this.art.alpha = 1; }
+    for (const child of [...this.children]) {
+      gsap.killTweensOf(child);
+      if (child !== this.art) child.destroy();
+    }
+    this.masker = undefined;
+    this.transition = false;
+    this.drawing = false;
     this.currentTexture = texture;
     const previous = this.art;
     const next = new Sprite(texture);
@@ -42,7 +52,6 @@ export class Character extends Container {
       previous?.destroy();
       return;
     }
-    this.masker?.destroy();
     gsap.killTweensOf(this.progress);
     this.progress.value = 0;
     this.transition = true;
@@ -98,12 +107,23 @@ export class Character extends Container {
       const p = this.progress.value;
       this.masker.clear();
       const halfWidth = Math.max(125, (this.art?.width ?? 250) / 2 + 8);
+      if (this.art?.texture.source.scaleMode === 'nearest') {
+        const size = 12;
+        for(let row=0;row<Math.ceil(this.baseHeight/size);row++) {
+          for(let col=0;col<Math.ceil(halfWidth*2/size);col++) {
+            const threshold=((row*17+col*31)%97)/97;
+            const appear=Math.max(0,Math.min(1,(p-threshold*.72)/.28));
+            if(appear>0)this.masker.rect(-halfWidth+col*size+(1-appear)*size/2,-this.baseHeight+row*size+(1-appear)*size/2,size*appear+1,size*appear+1).fill(0xffffff);
+          }
+        }
+        return;
+      }
       for (let row = 0; row < 50; row++) {
         const stagger = (Math.sin(row * 13.37) + 1) * 0.11;
         const w = Math.max(0, Math.min(1, (p - stagger) / 0.78)) * halfWidth * 2;
         this.masker
           .rect(
-            -halfWidth,
+            -w / 2,
             -this.baseHeight + (row * this.baseHeight) / 50,
             w,
             this.baseHeight / 50 + 1,

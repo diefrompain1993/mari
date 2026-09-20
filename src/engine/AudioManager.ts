@@ -8,6 +8,7 @@ export class AudioManager {
   private track = "";
   private unlocked = false;
   private paused = false;
+  private gain = 0.43;
   constructor(private settings: Settings) {
     Howler.autoUnlock = true;
     this.sounds.set('tap', new Howl({src:[import.meta.env.BASE_URL+'assets/audio/tap.wav'],volume:0,preload:true}));
@@ -25,11 +26,12 @@ export class AudioManager {
     const id = personalMusic.scene === scene.id && personalMusic.stayTrack ? 'personal-stay' : scene.environment === "cafe" ? "cafe" : scene.chapter;
     if (this.track === id) return;
     this.track = id;
+    this.gain = 0.43;
     const old = this.music;
     old?.fade(old.volume(), 0, 1000);
     if (old) setTimeout(() => old.unload(), 1100);
     this.music = new Howl({
-      src: [import.meta.env.BASE_URL + (personalMusic.scene === scene.id && personalMusic.stayTrack ? personalMusic.stayTrack : `assets/audio/${id}.wav`)],
+      src: [import.meta.env.BASE_URL + (personalMusic.scene === scene.id && personalMusic.stayTrack ? personalMusic.stayTrack : `assets/audio/${id}.mp3`)],
       loop: true,
       volume: 0,
       html5: false,
@@ -60,11 +62,12 @@ export class AudioManager {
     h.play();
   }
   quiet(value = 0.2) {
+    this.gain = value;
     this.music?.fade(this.music.volume(), this.settings.music * value, 1500);
   }
   update(settings: Settings) {
     this.settings = settings;
-    this.music?.volume(settings.music * 0.43);
+    this.music?.volume(settings.music * this.gain);
     this.ambience?.volume(settings.sfx * 0.13);
   }
   pause() {
@@ -84,6 +87,7 @@ export class AudioManager {
       unlocked: this.unlocked,
       context: Howler.ctx?.state ?? "unavailable",
       playing: this.music?.playing() ?? false,
+      duration: this.music?.duration() ?? 0,
     };
   }
 }

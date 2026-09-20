@@ -3,7 +3,7 @@ import {readFile,stat,mkdir,writeFile} from 'node:fs/promises';
 import {resolve,extname,sep} from 'node:path';
 import {webkit,chromium,devices} from '@playwright/test';
 const root=resolve('dist'),prefix='/novel-preview/';
-const mime={'.html':'text/html','.js':'text/javascript','.css':'text/css','.webp':'image/webp','.wav':'audio/wav','.woff2':'font/woff2','.woff':'font/woff'};
+const mime={'.html':'text/html','.js':'text/javascript','.css':'text/css','.webp':'image/webp','.wav':'audio/wav','.mp3':'audio/mpeg','.woff2':'font/woff2','.woff':'font/woff'};
 const server=createServer(async(req,res)=>{try{
  if(!req.url.startsWith(prefix)){res.writeHead(404).end();return;}
  const relative=decodeURIComponent(req.url.split('?')[0].slice(prefix.length))||'index.html';
@@ -22,7 +22,7 @@ try{for(const [name,engine,device]of[['webkit',webkit,'iPhone 13'],['chromium',c
  const saved=await page.evaluate(()=>JSON.parse(localStorage.getItem('proyavlenie.v1')));
  if(saved.scene!==0)throw Error('Production query skips story');
  const webAudio=await page.evaluate(()=>typeof AudioContext!=='undefined');
- const scoreRequested=requests.some(u=>u.endsWith('/assets/audio/prologue.wav'));
+ const scoreRequested=requests.some(u=>u.endsWith('/assets/audio/prologue.mp3'));
  if(webAudio&&!scoreRequested)throw Error('Missing score request');
  if(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth))throw Error('Horizontal overflow');
  await page.screenshot({path:`art/qa/production/${name}.png`});

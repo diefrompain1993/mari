@@ -1,4 +1,5 @@
 import { story } from "../content/story";
+import { findScene } from '../content/story';
 import type { SaveData, Settings } from "../content/types";
 export const SAVE_KEY = "proyavlenie.v1";
 export const defaults = (reduced = false): Settings => ({
@@ -18,7 +19,15 @@ export class SaveManager {
     try {
       const raw = this.storage.getItem(SAVE_KEY);
       if (!raw) return null;
-      const s = JSON.parse(raw) as SaveData;
+      const s = JSON.parse(raw) as SaveData & { checkpoint?: string; narrative?: string };
+      if (!s || typeof s !== 'object') return null;
+      // A different story cannot resume at a numerically similar beat. Keep preferences.
+      if (s.narrative !== 'book-v1') { s.scene=0; s.beat=0; s.completed=[]; }
+      const checkpoint = s.narrative === 'book-v1' ? s.checkpoint : undefined;
+      const location = typeof checkpoint === 'string' ? findScene(checkpoint) : undefined;
+      if (location) { s.scene = location.scene; s.beat = location.beat; }
+      delete s.checkpoint;
+      delete s.narrative;
       if (
         s.version !== 1 ||
         !Number.isInteger(s.scene) ||
@@ -49,7 +58,7 @@ export class SaveManager {
   }
   save(data: SaveData) {
     try {
-      this.storage.setItem(SAVE_KEY, JSON.stringify(data));
+      this.storage.setItem(SAVE_KEY, JSON.stringify({ ...data, narrative:'book-v1', checkpoint: story[data.scene]?.beats[data.beat]?.id }));
       return true;
     } catch {
       return false;

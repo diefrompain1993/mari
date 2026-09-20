@@ -1,0 +1,30 @@
+{
+  "book-opening": {
+    "prompt": "Portrait 9:19.5 raster illustration for romantic visual novel opening. An open old book floating in deep charcoal navy emptiness, its RIGHT page entirely blank, left page carrying just a few illegible tiny pencil strokes, no readable text. The book at center around 48% image height, occupies 65% width. Extremely sparse delicate ivory hand-drawn pencil lines, faint paper shading ONLY in the book, empty spacious dark blue background. This is the opening stick-figure world, not photorealistic and not highly detailed. Small dust motes like ink. Lower 25% quiet dark for dialogue. No characters, no interface, no typography.",
+    "path": "C:\\Users\\aleks\\.codex\\generated_images\\01a0b116-6b79-71e2-9315-31760c0e16b1\\exec-d8c428ba-d6c9-4f2c-bfd1-3320c1920592.png"
+  },
+  "ink-forest": {
+    "prompt": "Portrait 9:19.5 raster background for fantasy visual novel. Forest of lost thoughts: trees made from a few slender ivory pencil lines on deep navy charcoal paper, incomplete hand-drawn trunks and branching scribbles. Five small pale paper fragments hang from branches. A narrow path gently winds toward an opening. Sparse unfinished sketch, lots of negative space, no detailed painting, no people, no text. Ground at72% height and lower22% dark empty for dialogue. Same early-world stickman aesthetic, quietly mysterious, not horror.",
+    "path": "C:\\Users\\aleks\\.codex\\generated_images\\01a0b116-6b79-71e2-9315-31760c0e16b1\\exec-8c8f6c83-edd0-42e2-aaba-79a54c457490.png"
+  },
+  "star-hill": {
+    "prompt": "Portrait 9:19.5 authentic 16-bit pixel art visual novel background. A small dark hill under expansive night sky, seven isolated warm ivory stars scattered across central upper sky (not already connected). A blank open book resting on a low stone in lower-middle, not huge. Crisp visible square pixel clusters, navy/slate/lavender/ivory limited palette. Feeling of discovering a hidden connection. No humans, no typography, no interface, no realistic painting. Horizon at65%, bottom22% dark quiet for dialogue.",
+    "path": "C:\\Users\\aleks\\.codex\\generated_images\\01a0b116-6b79-71e2-9315-31760c0e16b1\\exec-83408d29-87e1-4a61-bd9a-1fc222913d77.png"
+  },
+  "paper-city": {
+    "prompt": "Portrait 9:19.5 authentic crisp 16-bit pixel art visual novel background. City of unwritten chapters, fantasy buildings made of tall folded pages and old book spines, paper bridges, warmly lit windows, three empty little workshop doorways. A distant tower of books is visible and beckons the traveler. Moonlit navy, slate violet and ivory with tiny muted amber accents. Clear foreground for sprites around70% image height, bottom22% quiet dark for dialogue. No people, text, signs or UI. Visible intentional square pixel clusters, no smooth painted detail, no photography.",
+    "path": "C:\\Users\\aleks\\.codex\\generated_images\\01a0b116-6b79-71e2-9315-31760c0e16b1\\exec-c90213a9-5f49-40f0-a0fe-ffb389fe4176.png"
+  },
+  "library": {
+    "prompt": "Portrait 9:19.5 authentic crisp 16-bit pixel art visual novel background. Vast fantastical Archive of Stories, high arched library made of countless books and folded ivory paper, floating closed books above, narrow pale moonlight from high windows. A low central reading desk holding one open BLANK book, clear foreground at70% height for hero left and keeper right. Quiet revelatory atmosphere. Palette navy slate lavender ivory, readable deliberate square pixel clusters, no smooth gradients or realism. Lower22% dark clear for dialogue. No people, no writing, no UI.",
+    "path": "C:\\Users\\aleks\\.codex\\generated_images\\01a0b116-6b79-71e2-9315-31760c0e16b1\\exec-4a7a5678-3c96-4230-adb4-296caac57673.png"
+  },
+  "book-final": {
+    "prompt": "Portrait 9:19.5 fully drawn moonlit fantasy illustration for final reveal of romantic visual novel. Luminous ivory open book resting on a dark blue reading pedestal, its two large pages entirely blank with delicate ornamental page corners. Above it white paper fragments and tiny star points suspended in deep blue night, suggest stories coming together. Fine stylized anime fantasy linework, subtle painterly ivory shading, NOT realistic photography. Gentle intimate light, no explosion. Book centered at44% image height and takes65% width. Lower25% quiet navy for dialogue. No people, no text, no symbols resembling names.",
+    "path": "C:\\Users\\aleks\\.codex\\generated_images\\01a0b116-6b79-71e2-9315-31760c0e16b1\\exec-71066cdd-1154-46e0-baf5-eb9df97f97ab.png"
+  },
+  "npcs": {
+    "prompt": "One production transparent raster sprite sheet with FIVE full-body fantasy visual-novel NPCs in five equally spaced columns, no labels or text. Generous transparent gutters, figures entirely inside each column, feet aligned. Left-to-right: 1 elderly bookbinder holding closed book, represented in very sparse ivory pencil outline only, simple storybook sketch, minimal details; 2 young woman with sealed letter wearing navy fantasy cloak; 3 middle-aged musician with small lute, midnight tunic; 4 elderly painter holding sketchpad, slate cloak; 5 female archive keeper wearing long dark blue robe layered with ivory page-like fabric and holding a small book. Columns2-5 genuine crisp 16-bit pixel art, deliberate square pixel clusters, limited ivory navy slate palette, no smooth realistic rendering, no chibi. Characters face slightly left toward a hero on their left. All independent silhouettes on REAL alpha transparent background, no scene, no glow, no black backdrop, no frame. Wide canvas.",
+    "path": "C:\\Users\\aleks\\.codex\\generated_images\\01a0b116-6b79-71e2-9315-31760c0e16b1\\exec-853e2231-8d7c-481c-b897-a2678a099ffe.png"
+  }
+}

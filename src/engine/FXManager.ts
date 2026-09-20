@@ -1,11 +1,13 @@
 import { Container, Graphics } from "pixi.js";
 import type { Environment } from "../content/types";
+import type { WorldStyle } from '../content/visuals';
 export class FXManager {
   readonly layer = new Container();
   private dust = new Graphics();
   private light = new Graphics();
   private env: Environment = "prologue";
   tier: "high" | "reduced" = "high";
+  style: WorldStyle = 'line';
   private frames = 0;
   private slow = 0;
   constructor() {
@@ -25,8 +27,8 @@ export class FXManager {
     }
     this.dust.clear();
     this.light.clear();
-    const pixel = this.env === "pixel";
-    const count = this.tier === "reduced" || reduced ? 12 : 30;
+    const pixel = this.style === 'pixel';
+    const count = this.style === 'line' ? 5 : this.tier === "reduced" || reduced ? 12 : 30;
     for (let i = 0; i < count; i++) {
       const x = (i * 83.71 + Math.sin(time * 0.12 + i) * 9) % 390;
       const y =
@@ -42,7 +44,7 @@ export class FXManager {
           .circle(x, y, i % 4 === 0 ? 1.5 : 0.65)
           .fill({ color: 0xf2dfb2, alpha });
     }
-    if (this.env === "crowd") {
+    if (this.env === "crowd" && this.style === 'full') {
       const a = reduced ? 0.045 : 0.05 + Math.sin(time * 0.7) * 0.025;
       this.light
         .poly([40, 0, 70, 0, 340, height * 0.75, 230, height * 0.75])

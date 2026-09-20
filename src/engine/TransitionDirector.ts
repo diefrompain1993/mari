@@ -23,11 +23,13 @@ export class TransitionDirector {
         c.addChild(g);
         gsap.to(g, { alpha: 1, duration: 0.35, delay: ((i * 7) % 17) * 0.035 });
       }
-    } else if (!this.reduced() && (environment === 'light' || environment === 'garden')) {
-      for (let i=0; i<20; i++) {
-        const g = new Graphics().rect(i*20,0,21,height).fill(environment === 'light'?0xc8c4b8:0x9b8966);
-        g.scale.y=0; g.pivot.y=i%2?height:0;g.y=i%2?height:0;c.addChild(g);
-        gsap.to(g.scale,{y:1,duration:.7,delay:Math.sin(i*2)**2*.2,ease:'sine.inOut'});
+    } else if (!this.reduced()) {
+      // Overlapping dark leaves turn across the scene, like closing a book.
+      for (let i=0; i<12; i++) {
+        const g = new Graphics().rect(0,0,34,height).fill(i%2?0x172334:0x1c2939);
+        g.moveTo(32,0).lineTo(32,height).stroke({color:0xc5b797,width:1,alpha:.13});
+        g.x=i*33;g.scale.x=0;c.addChild(g);
+        gsap.to(g.scale,{x:1,duration:.48,delay:i*.028,ease:'sine.inOut'});
       }
     } else {
       const g = new Graphics().rect(0, 0, 390, height).fill(environment === 'crowd' && !this.reduced()?0x65443a:0x101719);
@@ -35,7 +37,7 @@ export class TransitionDirector {
       c.addChild(g);
       gsap.to(g, { alpha: 1, duration: 0.65 });
     }
-    await new Promise((r) => setTimeout(r, 950));
+    await new Promise<void>((resolve) => gsap.delayedCall(this.reduced() ? .7 : .95, resolve));
     return () => {
       gsap.to(c, {
         alpha: 0,

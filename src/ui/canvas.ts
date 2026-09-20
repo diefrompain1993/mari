@@ -1,4 +1,5 @@
 import { Container, Graphics, Text, Rectangle } from "pixi.js";
+import gsap from 'gsap';
 export const palette = {
   ink: 0x111819,
   paper: 0xeee3ce,
@@ -49,6 +50,12 @@ export function button(
   const t = label(text, width / 2, 13, 14, false, palette.paper, width - 12);
   t.anchor.set(0.5, 0);
   c.addChild(g, t);
+  c.on('pointerdown', () => { gsap.to(t, {alpha:.5, duration:.1}); });
+  const release = () => { gsap.to(t, {alpha:1, duration:.18}); };
+  c.on('pointerup', release);
+  c.on('pointerupoutside', release);
+  c.on('pointercancel', release);
+  c.on('destroyed', () => gsap.killTweensOf(t));
   c.on("pointertap", (e) => {
     e.stopPropagation();
     action();

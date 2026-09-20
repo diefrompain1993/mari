@@ -1,0 +1,50 @@
+{
+  "prologue": {
+    "duration": 192,
+    "sections": 4,
+    "peak": 0.1068,
+    "bytes": 2304984
+  },
+  "light": {
+    "duration": 192,
+    "sections": 4,
+    "peak": 0.1524,
+    "bytes": 2304984
+  },
+  "approach": {
+    "duration": 192,
+    "sections": 4,
+    "peak": 0.1412,
+    "bytes": 2304984
+  },
+  "silence": {
+    "duration": 192,
+    "sections": 4,
+    "peak": 0.1117,
+    "bytes": 2304984
+  },
+  "noise": {
+    "duration": 192,
+    "sections": 4,
+    "peak": 0.1462,
+    "bytes": 2304984
+  },
+  "cafe": {
+    "duration": 192,
+    "sections": 4,
+    "peak": 0.1372,
+    "bytes": 2304984
+  },
+  "resolution": {
+    "duration": 192,
+    "sections": 4,
+    "peak": 0.14,
+    "bytes": 2304984
+  },
+  "finale": {
+    "duration": 192,
+    "sections": 4,
+    "peak": 0.141,
+    "bytes": 2304984
+  }
+}

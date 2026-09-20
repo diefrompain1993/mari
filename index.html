@@ -34,35 +34,38 @@
         человека.</small
       >
     </div>
-    <button id="settings-button" aria-label="Настройки">⋮</button>
-    <dialog id="settings">
+    <button id="settings-button" aria-label="Настройки">☰</button>
+    <dialog id="settings" aria-labelledby="settings-title">
       <form method="dialog">
-        <h2>Немного тише</h2>
+        <small class="settings-kicker">Закладка между страницами</small>
+        <h2 id="settings-title">Побудем здесь</h2>
+        <p class="settings-intro">История подождёт. Настрой её под себя.</p>
         <label
-          >Музыка<input
+          >Музыка<output for="music" id="music-value"></output><input
             id="music"
             type="range"
             min="0"
             max="1"
             step="0.05" /></label
         ><label
-          >Звуки мира<input
+          >Звуки мира<output for="sfx" id="sfx-value"></output><input
             id="sfx"
             type="range"
             min="0"
             max="1"
             step="0.05" /></label
         ><label
-          >Скорость текста<input
+          >Скорость текста<output for="text-speed" id="text-speed-value"></output><input
             id="text-speed"
             type="range"
             min="15"
             max="65"
             step="5" /></label
         ><label class="check"
-          >Меньше движения<input id="reduced-motion" type="checkbox" /></label
-        ><button id="restart" type="button">Начать историю заново</button
-        ><button>Вернуться</button>
+          ><span>Меньше движения<small>Спокойные переходы и появление героев</small></span><input id="reduced-motion" type="checkbox" /></label
+        ><button class="settings-return">Продолжить историю</button>
+        <p class="settings-saved">Твоё место в книге сохранено</p>
+        <button id="restart" type="button">Начать историю заново</button>
       </form>
     </dialog>
     <div id="audio-retry" hidden><button>Включить звук</button></div>

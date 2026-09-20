@@ -1,4 +1,4 @@
-import { Container, Graphics, Text, Rectangle } from "pixi.js";
+import { Container, Graphics, Text, Rectangle, CanvasTextMetrics } from "pixi.js";
 import { label, palette } from "../ui/canvas";
 import type { Beat, Settings } from "../content/types";
 export class DialogueSystem {
@@ -11,6 +11,8 @@ export class DialogueSystem {
   private done = false;
   private active = false;
   private final = false;
+  private panelHeight = 185;
+  private fullHeight = 0;
   constructor(
     private settings: () => Settings,
     private next: () => void,
@@ -46,7 +48,6 @@ export class DialogueSystem {
     this.active = true;
     this.final = !!beat.final;
     this.layer.visible = true;
-    this.layer.position.y = height - (this.final ? 200 : 185);
     this.text.text = "";
     this.text.style.fontFamily = this.final
       ? "Cormorant Garamond"
@@ -54,13 +55,13 @@ export class DialogueSystem {
     this.text.style.fontSize = this.final ? 33 : 19;
     this.text.style.lineHeight = this.final ? 42 : 28;
     this.text.style.wordWrapWidth = 326;
-    this.who.text = this.final
-      ? ""
-      : beat.speaker === "girl"
-        ? "ОНА"
-        : beat.speaker === "hero"
-          ? "ОН"
-          : "ПРО СЕБЯ";
+    this.fullHeight = CanvasTextMetrics.measureText(this.full, this.text.style).height;
+    this.panelHeight = Math.max(this.final ? 200 : 185, this.fullHeight + 85);
+    this.layer.position.y = height - this.panelHeight;
+    this.hint.y = 24 + this.fullHeight + 22;
+    this.layer.hitArea = new Rectangle(0, -22, 390, this.panelHeight + 22);
+    const names = {girl:'ДЕВУШКА ИЗ СВЕТА', hero:'СТРАННИК', thought:'ПРО СЕБЯ', narrator:'', binder:'ПЕРЕПЛЁТЧИК', letter:'ДЕВУШКА С ПИСЬМОМ', musician:'МУЗЫКАНТ', painter:'ХУДОЖНИК', keeper:'ХРАНИТЕЛЬНИЦА'};
+    this.who.text = this.final ? '' : names[beat.speaker ?? 'narrator'];
     this.hint.visible = false;
     document.getElementById("sr-story")!.textContent = this.full;
   }
@@ -69,7 +70,7 @@ export class DialogueSystem {
     this.layer.visible = false;
   }
   resize(height: number) {
-    this.layer.position.y = height - (this.final ? 200 : 185);
+    this.layer.position.y = height - this.panelHeight;
   }
   tap() {
     if (!this.active || this.final) return;
@@ -91,6 +92,8 @@ export class DialogueSystem {
     }
   }
   state() {
-    return { typing: !this.done, visible: this.active, final: this.final };
+    return { typing: !this.done, visible: this.active, final: this.final,
+      textBottom: this.layer.y + 24 + this.fullHeight,
+      hintTop: this.layer.y + this.hint.y };
   }
 }

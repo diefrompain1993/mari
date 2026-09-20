@@ -1,101 +1,19 @@
-import { describe, it, expect } from "vitest";
-import { SaveManager, defaults, SAVE_KEY } from "../src/engine/SaveManager";
-import { story, findScene, stagesAt } from "../src/content/story";
-import { clockValue, crowdProgress, followPath } from "../src/minigames/logic";
-const storage = () => {
-  const m = new Map<string, string>();
-  return {
-    getItem: (k: string) => m.get(k) ?? null,
-    setItem: (k: string, v: string) => {
-      m.set(k, v);
-    },
-    removeItem: (k: string) => {
-      m.delete(k);
-    },
-  };
-};
-describe("checkpoint durability", () => {
-  it("round trips narrative and preferences", () => {
-    const s = new SaveManager(storage());
-    const data = {
-      version: 1 as const,
-      scene: 4,
-      beat: 5,
-      completed: ["follow_start"],
-      settings: defaults(),
-    };
-    s.save(data);
-    expect(s.load()).toEqual(data);
-  });
-  it("rejects corrupt and out-of-range saves", () => {
-    const memory = storage(),
-      s = new SaveManager(memory);
-    memory.setItem(SAVE_KEY, "{");
-    expect(s.load()).toBeNull();
-    memory.setItem(
-      SAVE_KEY,
-      JSON.stringify({
-        version: 1,
-        scene: 999,
-        beat: 0,
-        settings: defaults(),
-        completed: [],
-      }),
-    );
-    expect(s.load()).toBeNull();
-  });
-  it("continues when persistence is unavailable", () => {
-    const s = new SaveManager({
-      getItem: () => {
-        throw Error();
-      },
-      setItem: () => {
-        throw Error();
-      },
-      removeItem: () => {
-        throw Error();
-      },
-    });
-    expect(s.load()).toBeNull();
-    expect(
-      s.save({
-        version: 1,
-        scene: 0,
-        beat: 0,
-        settings: defaults(),
-        completed: [],
-      }),
-    ).toBe(false);
-  });
+import {describe,it,expect} from 'vitest';
+import {SaveManager,defaults,SAVE_KEY} from '../src/engine/SaveManager';
+import {story,findScene,stagesAt} from '../src/content/story';
+import {backgroundId,characterIds,worldStyle} from '../src/content/visuals';
+import {bookGames} from '../src/content/book-games';
+const storage=()=>{const m=new Map<string,string>();return{getItem:(k:string)=>m.get(k)??null,setItem:(k:string,v:string)=>{m.set(k,v);},removeItem:(k:string)=>{m.delete(k);}};};
+describe('book story durability',()=>{
+ it('resumes by stable ID and preserves preferences',()=>{const mem=storage(),s=new SaveManager(mem);const p=findScene('keeper_answer')!;const data={version:1 as const,...p,completed:['collect_fragments'],settings:defaults()};s.save(data);expect(s.load()).toEqual(data);const raw=JSON.parse(mem.getItem(SAVE_KEY)!);raw.scene=0;raw.beat=0;mem.setItem(SAVE_KEY,JSON.stringify(raw));expect(s.load()).toEqual(data);});
+ it('starts the rewritten story at its beginning while keeping old settings',()=>{const mem=storage(),s=new SaveManager(mem);mem.setItem(SAVE_KEY,JSON.stringify({version:1,scene:4,beat:5,completed:['old_game'],settings:{...defaults(),music:.2}}));const saved=s.load()!;expect(saved.scene).toBe(0);expect(saved.beat).toBe(0);expect(saved.completed).toEqual([]);expect(saved.settings.music).toBe(.2);});
+ it('rejects malformed new saves',()=>{const mem=storage(),s=new SaveManager(mem);for(const raw of ['{','null',JSON.stringify({version:1,narrative:'book-v1',scene:999,beat:0,completed:[],settings:defaults()})]){mem.setItem(SAVE_KEY,raw);expect(s.load()).toBeNull();}});
+ it('continues with unavailable storage',()=>{const s=new SaveManager({getItem:()=>{throw Error();},setItem:()=>{throw Error();},removeItem:()=>{throw Error();}});expect(s.load()).toBeNull();expect(s.save({version:1,scene:0,beat:0,completed:[],settings:defaults()})).toBe(false);});
 });
-describe("narrative continuity", () => {
-  it("has unique beat IDs and one open final question", () => {
-    const beats = story.flatMap((s) => s.beats);
-    expect(new Set(beats.map((b) => b.id)).size).toBe(beats.length);
-    expect(beats.filter((b) => b.final)).toHaveLength(1);
-    expect(beats.at(-1)?.text).toBe("Будешь ли моей девушкой?");
-    expect(new Set(beats.filter((b) => b.game).map((b) => b.game))).toEqual(
-      new Set(["follow", "clock", "night", "crowd", "sort"]),
-    );
-  });
-  it("reconstructs character stage at reloaded reveal", () => {
-    const p = findScene("first_kindness_reveal")!;
-    expect(stagesAt(p.scene, p.beat).girl).toBe(3);
-    const final = findScene("human_reveal")!;
-    expect(stagesAt(final.scene, final.beat).hero).toBe(6);
-  });
-});
-describe("no-failure interactions", () => {
-  it("clock eventually reveals without solving arithmetic", () => {
-    expect(clockValue(0, 39)).toBe("14 времени");
-    expect(clockValue(4, 2)).toBe("14 времени");
-  });
-  it("crowd keeps progressing even at a distance", () => {
-    expect(crowdProgress(1, 200, true)).toBeGreaterThan(0);
-    expect(crowdProgress(1, 0, false)).toBe(0);
-  });
-  it("follow path stays inside a finger-sized safe area", () => {
-    for (let i = 0; i <= 100; i++)
-      expect(followPath(i / 100)).toBeGreaterThan(80);
-  });
+describe('narrative contract',()=>{
+ it('has unique beats and an unanswered final proposal',()=>{const beats=story.flatMap(s=>s.beats);expect(new Set(beats.map(b=>b.id)).size).toBe(beats.length);expect(beats.filter(b=>b.final)).toHaveLength(1);expect(beats.at(-1)?.text).toBe('Станешь ли ты моей девушкой?');});
+ it('withholds her name and personal reveal until after the archive',()=>{const beats=story.flatMap(s=>s.beats),name=beats.findIndex(b=>b.id==='name_reveal');expect(beats.slice(0,name).some(b=>b.text?.includes('Маша'))).toBe(false);expect(name).toBeGreaterThan(beats.findIndex(b=>b.id==='reread_book'));expect(beats.findIndex(b=>b.id==='traveler_is_me')).toBeGreaterThan(name);});
+ it('connects the central mystery to its reinterpretation through playable beats',()=>{const order=['write_page','collect_fragments','follow_start','join_stars','reread_book','name_fragments','final_question'];const beats=story.flatMap(s=>s.beats);const positions=order.map(id=>beats.findIndex(b=>b.id===id));expect(positions.every((p,i)=>p>=0&&(i===0||p>positions[i-1]))).toBe(true);expect(bookGames.stars?.items).toHaveLength(7);expect(bookGames.fragments?.items).toHaveLength(5);});
+ it('never substitutes a fully drawn hero before human reveal',()=>{let revealed=false;story.forEach((scene,s)=>scene.beats.forEach((beat,b)=>{if(beat.id==='human_reveal')revealed=true;const stage=stagesAt(s,b);if(stage.hero)expect(worldStyle(stage.hero)==='full').toBe(revealed);if(scene.environment==='room')expect(characterIds(scene,stage.hero,stage.girl).hero).toBe('hero-seated-pixel');}));});
+ it('changes the world after the emotional pixel and final reveals',()=>{for(const[id,style]of [['self_portrait','line'],['new_detail','pixel'],['human_reveal','full']]as const){const p=findScene(id)!,stage=stagesAt(p.scene,p.beat);expect(worldStyle(stage.hero)).toBe(style);expect(backgroundId(story[p.scene],stage.hero)).toBe(style==='line'?'env-line':style==='pixel'?'env-pixel-garden':'env-finale');}});
 });

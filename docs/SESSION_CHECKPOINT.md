@@ -1,25 +1,13 @@
-# Fantasy revision completed after resuming
+# Session checkpoint вЂ” book revision
 
-The user requested continuing. The fantasy art revision and final local verification are complete. Public hosting remains paused by explicit user instruction.
+The user chose the old book reference after rejecting the disconnected walking story. Source: docs/specs/BOOK_REFERENCE.md. New plot is implemented in src/content/story.ts; interactive memory content is in src/content/book-games.ts. docs/NARRATIVE.md records current authority.
 
-## Current direction
-The user rejected realistic faces, the girl's rustic wrap tunic, and the previous costumes. The new authority is their moonlit drawn fantasy reference, preserved at art/fantasy/style-reference.png. Girl: illustrated short pale bob, flower ornament, elaborate ivory laced gown and draped sleeves; progressive white light. Hero: same drawn style, light-brown hair, dark midnight long fantasy coat with silver lacing, no glow. Real photographs remain identity references outside the project.
+New art: art/book (six backgrounds, five NPC sprites from a sheet); prompts/provenance: art/book-generation.json; runtime: public/assets/book. Progression art remains active: literal raster stickman, pixel middle, final drawn characters. Built-in ImageGen was used. Photos are excluded.
 
-## Completed locally
-- Generated new standing and seated characters, seated partial face, six girl reveal stages, hero drawing/pixel stages, and nine moonlit fantasy backgrounds.
-- Selected masters saved in art/fantasy; generation prompts/provenance in art/fantasy-generation.json. heroLine was rejected as a replacement; the original sparse authored opening sketch remains. The intentional pixel background remains.
-- scripts/prepare-fantasy.mjs exports 26 active textures into public/assets/art-v2 and updates the manifest. Alpha is preserved. Some generator previews show RGB haze under transparent pixels; game composites are the visual authority.
-- Old runtime images were copied to art/archive-realism/runtime and removed from public. Historical art/masters and old export scripts remain; do not run the old exporters against the current manifest.
-- Integrated new assets, corrected seated facing, widened reveal masks, adjusted character sizes/spacing. Last small change places standing girl at x272 to keep the wide dress inside the frame.
-- Updated AGENTS.md, ART_DIRECTION, CHARACTER_BIBLE, NARRATIVE, ASSET_PIPELINE and README for the new style and paused publication.
-- Inspected mobile WebKit/Chromium controls and four scene comparisons. Preview: art/fantasy/game-preview.png. QA captures: art/qa/fantasy and art/qa/controls.
+Mechanics: page writing attempts, five collectible fragments, three approach taps, clock, night conversation, seven stars, musician choices, rereading three pages, and four personal fragments. Name reveals late, followed by first-person confession. Final answer is not supplied. Old-story saves reset narrative with settings retained; current saves resume by beat ID.
 
-## Verification and remaining work
-Final revision, including the x272 dress spacing adjustment: 8 logic tests, production build and all 6 browser tests passed (3 WebKit, 3 Chromium). Eight additional mobile scene captures completed without page or failed-request errors. Reviewed final dress framing and seated alignment. Preview: art/fantasy/game-preview.png.
+Verification complete on September 20: nine unit tests; TypeScript/production build; eight mobile browser tests (four WebKit, four Chromium, 5.8 minutes). All ordinary interactions pass. Full 188-beat touch playthrough previously reached the ending in 314.8s with accelerated text, not normal reading time. Production subpath checked on both engines without errors. Inspected current mobile collectible and settings screenshots.
 
-The earlier full 15:04 normal playthrough belongs to the previous art revision; this revision received browser regression and visual checks. Physical-phone performance/audio remains unverified. The shared song file and final placement remain pending a later user decision.
+Latest technical polish: eight original stereo MP3 scores of 192s each with four arrangement sections (scripts/create-score.py); old 24s music WAVs removed, SFX retained. Decoder validation reports no clipping and quiet loop boundaries. High-contrast collectible circles/title chips/checkmarks, bookmark settings with live values, safe interrupted raster transformations and book-leaf transitions. Final question: «Станешь ли ты моей девушкой?».
 
-Save this completed revision in git and sync only to the existing private repository. No further generation is necessary unless the user requests changes.
-## Hosting
-diefrompain1993/mari is PRIVATE. GitHub Pages was deleted and pages.yml workflow is disabled_manually; both privacy and disabled workflow were rechecked during this revision. Never re-enable publishing merely because development resumes. The user explicitly paused public hosting.
-
+Preview: http://localhost:5188/ (mobile viewport). Hosting remains PRIVATE, pages.yml disabled_manually, rechecked September 20. No deployment performed. Shared Stay file/placement remains pending; this score does not include it.
