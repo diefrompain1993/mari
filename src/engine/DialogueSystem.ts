@@ -13,6 +13,7 @@ export class DialogueSystem {
   private final = false;
   private panelHeight = 185;
   private fullHeight = 0;
+  private shade = new Graphics();
   constructor(
     private settings: () => Settings,
     private next: () => void,
@@ -33,7 +34,7 @@ export class DialogueSystem {
       .moveTo(32, -15)
       .lineTo(65, -15)
       .stroke({ color: palette.paper, alpha: 0.4, width: 1 });
-    this.layer.addChild(edge, this.who, this.text, this.hint);
+    this.layer.addChild(this.shade, edge, this.who, this.text, this.hint);
     this.layer.eventMode = "static";
     this.layer.hitArea = new Rectangle(0, -22, 390, 210);
     this.layer.on("pointertap", (e) => {
@@ -56,7 +57,12 @@ export class DialogueSystem {
     this.text.style.lineHeight = this.final ? 42 : 28;
     this.text.style.wordWrapWidth = 326;
     this.fullHeight = CanvasTextMetrics.measureText(this.full, this.text.style).height;
-    this.panelHeight = Math.max(this.final ? 200 : 185, this.fullHeight + 85);
+    this.panelHeight = Math.max(this.final ? 180 : 140, this.fullHeight + 85);
+    this.shade.clear();
+    for(let i=0;i<40;i++){
+      const h=this.panelHeight+38,y=-38+i*h/40;
+      this.shade.rect(0,y,390,h/40+1).fill({color:0x101723,alpha:.9*Math.min(1,i*h/40/52)});
+    }
     this.layer.position.y = height - this.panelHeight;
     this.hint.y = 24 + this.fullHeight + 22;
     this.layer.hitArea = new Rectangle(0, -22, 390, this.panelHeight + 22);

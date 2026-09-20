@@ -1,4 +1,4 @@
-import { Container, Graphics, Rectangle, Text } from 'pixi.js';
+import { Container, Graphics, Rectangle, Text, CanvasTextMetrics } from 'pixi.js';
 import gsap from 'gsap';
 import { button, label, palette } from '../ui/canvas';
 import type { GameKind } from '../content/types';
@@ -40,6 +40,9 @@ export class MinigameDirector {
   private instruction: Text;
   private message: Text;
   private controls = new Container();
+  private actions:Container[]=[];
+  private panelKey='';
+  private messageY=0;
   private rings = new Container();
   private clockHands: Graphics[] = [];
   private constellation = 0;
@@ -86,23 +89,26 @@ export class MinigameDirector {
     if(kind==='clock')this.buildClock();
     this.renderRound();
   }
-  private clearControls() { this.forestNodes=[];this.controls.removeChildren().forEach(c=>c.destroy({children:true})); }
+  private clearControls() { this.actions=[];this.forestNodes=[];this.controls.removeChildren().forEach(c=>c.destroy({children:true})); }
   private drawPanel() {
-    const forest=this.state?.kind==='fragments';
-    const height=this.state?.kind==='page'?Math.max(170,this.message.height+135):forest&&!this.state?.awaiting?220:330;
+    const firstAction=this.actions.length?Math.min(...this.actions.map(c=>c.y)):this.H-70;
+    const fullText=this.forestRead?.text??this.message.text;
+    const key=`${this.H}|${firstAction}|${this.message.style.fontSize}|${fullText}`;
+    if(key===this.panelKey){this.message.y=this.messageY;return;}
+    this.panelKey=key;
+    const textHeight=fullText?CanvasTextMetrics.measureText(fullText,this.message.style).height:0;
+    this.message.y=firstAction-textHeight-24;
+    this.messageY=this.message.y;
+    const top=this.message.y-34,height=this.H-top;
     this.panel.clear();
-    if(forest) {
-      for(let i=0;i<40;i++)this.panel.rect(0,this.H-height+i*height/40,390,height/40+1).fill({color:0x101723,alpha:.94*Math.min(1,i/14)});
-    } else {
-      this.panel.rect(0,this.H-height,390,height).fill({color:0x101723,alpha:.94});
-      this.panel.moveTo(32,this.H-height+2).lineTo(358,this.H-height+2).stroke({color:palette.gold,width:1,alpha:.2});
-    }
+    for(let i=0;i<40;i++)this.panel.rect(0,top+i*height/40,390,height/40+1).fill({color:0x101723,alpha:.9*Math.min(1,i*height/40/52)});
   }
   private action(text: string, y: number, fn: ()=>void) {
-    this.controls.addChild(button(text,32,y,326,()=>{
+    const control=button(text,32,y,326,()=>{
       const s=this.state;if(!s||s.moving||s.responding>0)return;
       this.chime();fn();
-    }));
+    });
+    this.actions.push(control);this.controls.addChild(control);this.panelKey='';
   }
   private renderRound() {
     const s=this.state!; this.clearControls(); this.instruction.text='';
@@ -214,7 +220,6 @@ export class MinigameDirector {
   }
   private starPosition(p:number[]){return{x:p[0],y:115+p[1]*Math.min(210,this.H-450)/180};}
   private layoutPagePanel(){
-    this.message.y=this.H-Math.max(170,this.message.height+135)+20;
     this.drawPanel();
   }
   private drawConstellation(sec:number){
@@ -343,6 +348,7 @@ export class MinigameDirector {
     const s=this.state;if(!s)return;
     const sec=Math.min(dt,150)/1000;s.elapsed+=sec;
     if(s.kind==='fragments')this.updateForest(sec);
+    this.drawPanel();
     s.responding=Math.max(0,s.responding-sec);
     if(s.done){if(s.responding===0)this.complete();return;}
     this.art.clear();
@@ -358,6 +364,7 @@ export class MinigameDirector {
   }
   complete(){if(!this.state)return;const done=this.finish;this.stop();done?.();}
   stop(){
+    this.panelKey='';
     this.constellation=0;
     if(this.forestRead)gsap.killTweensOf(this.forestRead);this.forestRead=undefined;
     this.scenes.hero.alpha=1;this.scenes.girl.alpha=1;this.scenes.npc.alpha=1;

@@ -49,6 +49,8 @@ export class SceneManager {
     this.fx.set(scene.environment);
     this.overlay.removeChildren().forEach((c) => c.destroy());
     this.dialogueShade = shade(390, height);
+    // Each active text system owns its content-sized shade.
+    this.dialogueShade.visible=false;
     this.shadeHeight = height;
     this.overlay.addChild(this.dialogueShade);
     this.foreground.clear();
