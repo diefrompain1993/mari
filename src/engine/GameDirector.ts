@@ -30,6 +30,9 @@ export class GameDirector {
   private frames: number[] = [];
   private generation = 0;
   private startLayer = new Container();
+  private startTitle?: Container;
+  private startButton?: Container;
+  private startNote?: Container;
   constructor(readonly app: Application) {
     const saved = this.save.load();
     this.data = saved ?? {
@@ -79,23 +82,20 @@ export class GameDirector {
     this.startLayer
       .removeChildren()
       .forEach((c) => c.destroy({ children: true }));
-    const g = new Graphics()
-      .moveTo(195, this.height * 0.31)
-      .lineTo(195, this.height * 0.39)
-      .stroke({ color: 0xe7dac4, width: 1, alpha: 0.7 });
     const text = label(
       "Последняя страница\nпока пуста.",
       195,
-      this.height * 0.43,
-      30,
+      this.height * 0.1,
+      26,
       true,
     );
     text.anchor.set(0.5, 0);
     text.style.align = "center";
+    text.style.stroke = {color:0x0b1420,width:3};
     const b = button(
       this.save.load() ? "Продолжить" : "Открыть книгу",
       85,
-      this.height * 0.67,
+      this.height * 0.7,
       220,
       () => {
         void this.audio.unlock().then((ok) => {
@@ -104,17 +104,19 @@ export class GameDirector {
         void this.begin();
       },
     );
-    this.startLayer.addChild(g, text, b);
+    this.startTitle=text;this.startButton=b;
+    this.startLayer.addChild(text, b);
     const small = label(
       "Лучше со звуком. И без спешки.",
       195,
-      this.height * 0.8,
+      this.height * 0.84,
       10,
       false,
       0xa4a79f,
     );
     small.anchor.set(0.5, 0);
     this.startLayer.addChild(small);
+    this.startNote=small;
     document.getElementById("boot")!.style.display = "none";
     this.assets.prefetch(story[1]);
     if (import.meta.env.DEV) {
@@ -129,7 +131,11 @@ export class GameDirector {
   private async begin() {
     if (this.started) return;
     this.started = true;
+    await new Promise<void>(resolve=>gsap.to(this.startLayer,{
+      alpha:0,duration:this.data.settings.reducedMotion?.15:.45,ease:'sine.inOut',onComplete:resolve,
+    }));
     this.startLayer.visible = false;
+    this.startLayer.alpha=1;
     await this.enter(this.data.scene, this.data.beat, false);
   }
   private async enter(index: number, beat = 0, transition = true) {
@@ -269,6 +275,9 @@ export class GameDirector {
     this.scenes.layout(this.height);
     this.dialogue.resize(this.height);
     this.games.resize(this.height);
+    if(this.startTitle)this.startTitle.y=this.height*.1;
+    if(this.startButton)this.startButton.y=this.height*.7;
+    if(this.startNote)this.startNote.y=this.height*.84;
     if (this.started) this.pause(document.hidden || document.querySelector<HTMLDialogElement>('#settings')!.open || matchMedia('(orientation: landscape)').matches);
   }
   private persist() {

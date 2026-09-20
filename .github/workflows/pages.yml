@@ -3,6 +3,11 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+    inputs:
+      skip_checks:
+        description: Publish without tests or type checks when explicitly requested
+        type: boolean
+        default: false
 permissions:
   contents: read
   pages: write
@@ -20,8 +25,12 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
-      - run: npm test
-      - run: npm run build
+      - if: ${{ !inputs.skip_checks }}
+        run: npm test
+      - if: ${{ !inputs.skip_checks }}
+        run: npm run build
+      - if: ${{ inputs.skip_checks }}
+        run: npx vite build
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:

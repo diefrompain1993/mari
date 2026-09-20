@@ -19,6 +19,8 @@ export class SceneManager {
   private scene?: Scene;
   private height = 844;
   private foreground = new Graphics();
+  private bookAura = new Graphics();
+  private backgroundBaseY = 0;
   private crowd: Sprite[] = [];
   private stages = { hero: 0, girl: 0 };
   private opening = false;
@@ -30,7 +32,7 @@ export class SceneManager {
     private settings: () => Settings,
   ) {
     root.addChild(this.world);
-    this.world.addChild(this.hero, this.girl, this.npc, this.foreground);
+    this.world.addChild(this.bookAura, this.hero, this.girl, this.npc, this.foreground);
     root.addChild(this.fx.layer, this.overlay);
     this.camera = new CameraDirector(
       this.world,
@@ -133,6 +135,7 @@ export class SceneManager {
         (390 - this.background.width) / 2,
         this.scene?.id === 'forest_fragments' ? 0 : (height - this.background.height) / 2,
       );
+      this.backgroundBaseY=this.background.y;
     }
     const solo = this.stages.girl === 0 && !this.scene?.npc;
     this.npc.position.set(285, height * .74);
@@ -270,6 +273,21 @@ export class SceneManager {
   }
   update(time: number, dt: number) {
     this.camera.update(time, this.height);
+    this.bookAura.clear();
+    if(this.scene?.id==='book_prologue'&&this.background){
+      const reduced=this.settings().reducedMotion,t=reduced?0:time;
+      this.background.y=this.backgroundBaseY+Math.sin(t*.7)*2.5;
+      const cx=195,cy=this.height*.43;
+      // Quiet motes trace the space around the book; they never cover its pages.
+      for(let i=0;i<18;i++){
+        const a=i*2.399+t*(.035+(i%3)*.009);
+        const x=cx+Math.cos(a)*(153+(i%3)*8),y=cy+Math.sin(a)*(this.height*.19)+Math.sin(t*.8+i)*3;
+        const alpha=.18+(Math.sin(t*.9+i*1.7)+1)*.16;
+        this.bookAura.circle(x,y,4).fill({color:0xf6e8c1,alpha:alpha*.12});
+        this.bookAura.circle(x,y,i%4===0?1.5:.8).fill({color:0xf6e8c1,alpha});
+        if(i%6===0)this.bookAura.moveTo(x-3,y).lineTo(x+3,y).moveTo(x,y-3).lineTo(x,y+3).stroke({color:0xf6e8c1,width:.6,alpha:alpha*.7});
+      }
+    }
     this.hero.update(time, this.settings().reducedMotion);
     this.girl.update(time, this.settings().reducedMotion);
     this.npc.update(time, this.settings().reducedMotion);

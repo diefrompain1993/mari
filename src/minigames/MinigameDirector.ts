@@ -89,7 +89,7 @@ export class MinigameDirector {
   private clearControls() { this.forestNodes=[];this.controls.removeChildren().forEach(c=>c.destroy({children:true})); }
   private drawPanel() {
     const forest=this.state?.kind==='fragments';
-    const height=forest&&!this.state?.awaiting?220:330;
+    const height=this.state?.kind==='page'?Math.max(170,this.message.height+135):forest&&!this.state?.awaiting?220:330;
     this.panel.clear();
     if(forest) {
       for(let i=0;i<40;i++)this.panel.rect(0,this.H-height+i*height/40,390,height/40+1).fill({color:0x101723,alpha:.94*Math.min(1,i/14)});
@@ -137,6 +137,7 @@ export class MinigameDirector {
   private respond(text:string){
     const s=this.state!;s.awaiting=true;s.responding=.35;
     this.clearControls();this.say(text);this.message.y=this.H-305;
+    if(s.kind==='page')this.layoutPagePanel();
     this.instruction.text='Продолжи, когда прочитаешь';
     if(s.kind==='stars'&&s.collected.length===7){
       this.constellation=0;s.responding=this.scenes.motionReduced?.35:2.4;
@@ -159,6 +160,7 @@ export class MinigameDirector {
     if(s.kind==='fragments'){this.renderForest();return;}
     this.say(data.prompt);
     if (s.kind==='page') {
+      this.layoutPagePanel();
       this.action(data.items[s.round].title,this.H-116,()=>{
         const ink=label('Здесь моя история…',230,this.H*.43,16,true,0x293044,140);
         ink.anchor.set(.5);this.rings.addChild(ink);
@@ -211,6 +213,10 @@ export class MinigameDirector {
     return{x:columns===3?75+col*120:105+col*175,y:115+row*Math.min(108,(this.H-450)/Math.max(1,rows-1))+(col%2?12:0)};
   }
   private starPosition(p:number[]){return{x:p[0],y:115+p[1]*Math.min(210,this.H-450)/180};}
+  private layoutPagePanel(){
+    this.message.y=this.H-Math.max(170,this.message.height+135)+20;
+    this.drawPanel();
+  }
   private drawConstellation(sec:number){
     const s=this.state!;
     if(s.collected.length===7){
@@ -373,5 +379,6 @@ export class MinigameDirector {
     if(bookGames[this.state.kind]&&!this.state.awaiting)this.renderRound();
     else for(const c of this.controls.children)c.y+=delta;
     if(this.state.kind==='clock')this.rings.y=this.clockY();
+    if(this.state.kind==='page')this.layoutPagePanel();
   }
 }
