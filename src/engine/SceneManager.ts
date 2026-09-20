@@ -131,7 +131,7 @@ export class SceneManager {
       this.background.scale.set(scale);
       this.background.position.set(
         (390 - this.background.width) / 2,
-        (height - this.background.height) / 2,
+        this.scene?.id === 'forest_fragments' ? 0 : (height - this.background.height) / 2,
       );
     }
     const solo = this.stages.girl === 0 && !this.scene?.npc;
@@ -149,6 +149,10 @@ export class SceneManager {
     this.hero.resize(this.characterHeight("hero"));
     this.girl.resize(this.characterHeight("girl"));
   }
+  backgroundPoint(x: number, y: number) {
+    return this.background!.toGlobal({x,y});
+  }
+  get motionReduced() { return this.settings().reducedMotion; }
   async title(scene: Scene) {
     if (!scene.title) return;
     const c = new Container();

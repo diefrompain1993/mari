@@ -41,6 +41,15 @@ export class MinigameDirector {
   private message: Text;
   private controls = new Container();
   private rings = new Container();
+  private clockHands: Graphics[] = [];
+  private forestNodes: {node:Container;leaf:Container;thread:Graphics;index:number}[] = [];
+  private forestRead?: {progress:number;index:number;paper:Graphics;title:Text;text:string;chars:number};
+  // Attachment and leaf centers in the authored 586 × 1266 forest painting.
+  private readonly branches = [
+    {x:104,y:96,px:107,py:151}, {x:259,y:234,px:258,py:284},
+    {x:119,y:408,px:118,py:460}, {x:463,y:329,px:461,py:385},
+    {x:548,y:473,px:550,py:524},
+  ];
   private finish?: () => void;
   private H = 844;
   private fromX = 105;
@@ -61,6 +70,9 @@ export class MinigameDirector {
     this.stop(); this.H = height; this.finish = done;
     this.state = {kind, elapsed:0, progress:0, round:0, responding:0, awaiting:false, moving:false, turns:0, done:false, collected:[]};
     this.layer.visible = true;
+    if(['clock','fragments','stars','archive','name'].includes(kind)) {
+      this.scenes.hero.alpha=.25;this.scenes.girl.alpha=.25;this.scenes.npc.alpha=.25;
+    }
     this.drawPanel();
     this.layer.hitArea = new Rectangle(0,70,390,height-70);
     this.instruction.y = height-35;
@@ -68,10 +80,17 @@ export class MinigameDirector {
     if(kind==='clock')this.buildClock();
     this.renderRound();
   }
-  private clearControls() { this.controls.removeChildren().forEach(c=>c.destroy({children:true})); }
+  private clearControls() { this.forestNodes=[];this.controls.removeChildren().forEach(c=>c.destroy({children:true})); }
   private drawPanel() {
-    this.panel.clear().rect(0,this.H-330,390,330).fill({color:0x101723,alpha:.94});
-    this.panel.moveTo(32,this.H-328).lineTo(358,this.H-328).stroke({color:palette.gold,width:1,alpha:.2});
+    const forest=this.state?.kind==='fragments';
+    const height=forest&&!this.state?.awaiting?220:330;
+    this.panel.clear();
+    if(forest) {
+      for(let i=0;i<40;i++)this.panel.rect(0,this.H-height+i*height/40,390,height/40+1).fill({color:0x101723,alpha:.94*Math.min(1,i/14)});
+    } else {
+      this.panel.rect(0,this.H-height,390,height).fill({color:0x101723,alpha:.94});
+      this.panel.moveTo(32,this.H-height+2).lineTo(358,this.H-height+2).stroke({color:palette.gold,width:1,alpha:.2});
+    }
   }
   private action(text: string, y: number, fn: ()=>void) {
     this.controls.addChild(button(text,32,y,326,()=>{
@@ -114,6 +133,9 @@ export class MinigameDirector {
     this.clearControls();this.say(text);this.message.y=this.H-305;
     this.instruction.text='Продолжи, когда прочитаешь';
     this.action('Дальше',this.H-100,()=>{
+      if(this.forestRead&&this.forestRead.chars<this.forestRead.text.length){
+        this.forestRead.chars=this.forestRead.text.length;this.message.text=this.forestRead.text;return;
+      }
       s.awaiting=false;s.round++;s.progress=s.round/this.roundCount();
       if(s.round>=this.roundCount())this.complete();else this.renderRound();
     });
@@ -124,6 +146,7 @@ export class MinigameDirector {
   }
   private renderBook() {
     const s=this.state!,data=bookGames[s.kind]!;
+    if(s.kind==='fragments'){this.renderForest();return;}
     this.say(data.prompt);
     if (s.kind==='page') {
       this.action(data.items[s.round].title,this.H-116,()=>{
@@ -142,26 +165,96 @@ export class MinigameDirector {
     this.instruction.text=`${s.collected.length} / ${data.items.length} · можно выбирать в любом порядке`;
     data.items.forEach((item,i)=>{
       const p=this.nodePosition(i,data.items.length),chosen=s.collected.includes(i);
-      const c=new Container();c.position.set(p.x,p.y);c.eventMode='static';c.cursor='pointer';c.hitArea=new Rectangle(-30,-30,60,60);
+      const c=new Container();c.position.set(p.x,p.y);c.eventMode='static';c.cursor='pointer';c.hitArea=new Rectangle(-55,-32,110,88);
       const g=new Graphics();
-      g.circle(0,2,29).fill({color:0x060c18,alpha:.65});
-      g.circle(0,0,25).fill({color:chosen?0x263b42:0x101c30,alpha:.97});
-      if(s.kind==='stars')g.poly([0,-9,3,-3,9,0,3,3,0,9,-3,3,-9,0,-3,-3]).fill({color:palette.paper,alpha:chosen?.35:1});
-      else g.poly([-10,-15,9,-12,12,13,-8,16]).fill({color:palette.paper,alpha:chosen?.3:.9});
-      g.circle(0,0,25).stroke({color:chosen?0x99c5bb:palette.paper,width:2,alpha:1});
-      if(chosen)g.moveTo(-7,0).lineTo(-1,6).lineTo(10,-7).stroke({color:0xd7fff0,width:3});
+      // Soft pools of night preserve contrast without turning artifacts into buttons.
+      for(let n=10;n>0;n--)g.ellipse(0,12,34+n*3,31+n*2).fill({color:0x080f21,alpha:.055});
+      if(s.kind==='stars') {
+        for(let n=7;n>0;n--)g.circle(0,0,4+n*3).fill({color:0xbad7ff,alpha:chosen?.018:.028});
+        const r=chosen?10:19;
+        g.poly([0,-r,3,-4,r*.65,0,3,4,0,r,-3,4,-r*.65,0,-3,-4]).fill(chosen?0x9daebe:0xfff4d7);
+        g.circle(0,0,2.5).fill(0xffffff);
+        if(!chosen)g.moveTo(-23,-13).lineTo(-17,-13).moveTo(-20,-16).lineTo(-20,-10).stroke({color:0xdfebff,width:1,alpha:.7});
+      } else {
+        // A torn, folded leaf with handwriting; its light is the paper itself.
+        g.poly([-17,-21,7,-25,19,-14,16,17,5,23,-3,20,-15,24,-19,11,-16,3]).fill({color:chosen?0xa9a797:0xeee1bd,alpha:chosen?.6:1}).stroke({color:0xfff4d8,width:1,alpha:.8});
+        g.poly([7,-25,8,-13,19,-14]).fill(0xbfae89);
+        for(let j=0;j<4;j++)g.moveTo(-11,-10+j*6).lineTo(8-(j%2)*5,-12+j*6).stroke({color:0x696253,width:1,alpha:.65});
+        g.moveTo(-8,15).quadraticCurveTo(0,9,8,13).stroke({color:0x696253,width:1,alpha:.6});
+      }
       c.addChild(g);
-      const name=label(item.title,0,33,11,false,palette.paper,106);name.anchor.set(.5,0);name.style.align='center';
-      const plate=new Graphics().roundRect(-56,29,112,name.height+9,6).fill({color:0x101c30,alpha:.96});
-      c.addChild(plate,name);
+      const name=label(item.title,0,32,13,true,chosen?0xb1b7bc:0xfff2d9,108);name.anchor.set(.5,0);name.style.align='center';
+      name.style.stroke={color:0x0c1426,width:3};
+      name.style.dropShadow={color:0x030713,alpha:1,blur:5,distance:0,angle:0};
+      c.addChild(name);
       if(!chosen)c.on('pointertap',e=>{e.stopPropagation();if(s.awaiting||s.responding>0)return;s.collected.push(i);this.chime();this.respond(item.text);});
       this.controls.addChild(c);
     });
   }
   private nodePosition(i:number,count:number) {
+    if(this.state?.kind==='fragments'){
+      const b=this.branches[i];return this.layer.toLocal(this.scenes.backgroundPoint(b.px,b.py));
+    }
     const columns=count>5?3:2,rows=Math.ceil(count/columns);
     const col=i%columns,row=Math.floor(i/columns);
-    return{x:columns===3?75+col*120:110+col*170,y:125+row*Math.min(100,(this.H-450)/Math.max(1,rows-1))};
+    return{x:columns===3?75+col*120:105+col*175,y:115+row*Math.min(108,(this.H-450)/Math.max(1,rows-1))+(col%2?12:0)};
+  }
+  private renderForest(){
+    const s=this.state!,data=bookGames.fragments!;
+    if(this.forestRead)gsap.killTweensOf(this.forestRead);
+    this.forestRead=undefined;
+    for(const c of this.rings.removeChildren())c.destroy({children:true});
+    this.drawPanel();
+    this.say('На ветвях шелестят страницы.\nКоснись той, что хочется прочитать.');
+    this.message.y=this.H-180;
+    this.instruction.text=`${s.collected.length} / ${data.items.length} · страницы можно читать в любом порядке`;
+    data.items.forEach((item,index)=>{
+      const chosen=s.collected.includes(index),node=new Container(),leaf=new Container(),thread=new Graphics();
+      const paper=new Graphics();
+      paper.poly([-17,-22,8,-25,19,-13,17,18,8,23,0,21,-15,25,-19,12]).fill(chosen?0xa8a48e:0xe8ddba).stroke({color:0xffefd0,width:.7,alpha:.7});
+      paper.poly([8,-25,8,-13,19,-13]).fill(0xb6a47b);
+      for(let j=0;j<4;j++)paper.moveTo(-11,-9+j*6).lineTo(8-j%2*5,-10+j*6).stroke({color:0x72684f,width:.8,alpha:.55});
+      leaf.addChild(paper);node.addChild(thread,leaf);
+      node.eventMode=chosen?'none':'static';node.cursor='pointer';
+      node.hitArea=new Rectangle(-30,-30,60,60);
+      node.on('pointertap',e=>{e.stopPropagation();if(s.awaiting||s.responding>0)return;s.collected.push(index);this.chime();this.openForestPage(index,item.title,item.text);});
+      this.controls.addChild(node);this.forestNodes.push({node,leaf,thread,index});
+    });
+    this.positionForest();
+  }
+  private positionForest(){
+    for(const f of this.forestNodes){
+      const b=this.branches[f.index],p=this.nodePosition(f.index,5),a=this.layer.toLocal(this.scenes.backgroundPoint(b.x,b.y));
+      f.node.position.copyFrom(p);
+      const sway=this.scenes.motionReduced?0:Math.sin((this.state?.elapsed??0)*.85+f.index*1.7)*.035;
+      f.leaf.rotation=sway;
+      f.thread.clear().moveTo(a.x-p.x,a.y-p.y).quadraticCurveTo((a.x-p.x)*.5+2,-32,0,-23).stroke({color:0xdfd4b0,width:1,alpha:.75});
+    }
+  }
+  private openForestPage(index:number,title:string,text:string){
+    this.respond('');this.drawPanel();
+    this.state!.responding=this.scenes.motionReduced?.35:1;
+    document.getElementById('sr-story')!.textContent=text;
+    this.instruction.text='Лист разворачивается. Текст появляется под ним.';
+    const paper=new Graphics(),heading=label(title,195,0,25,true,0x494436,240);heading.anchor.set(.5);
+    this.rings.addChild(paper,heading);
+    const read={progress:this.scenes.motionReduced?1:0,index,paper,title:heading,text,chars:0};this.forestRead=read;
+    if(!this.scenes.motionReduced)gsap.to(read,{progress:1,duration:.9,ease:'power2.inOut'});
+  }
+  private updateForest(sec:number){
+    this.positionForest();
+    const r=this.forestRead;if(!r)return;
+    const p=r.progress,from=this.nodePosition(r.index,5),x=from.x+(195-from.x)*p,y=from.y+(Math.min(220,this.H*.29)-from.y)*p;
+    const w=36+222*p,h=48+72*p;
+    r.paper.position.set(x,y);r.paper.rotation=(1-p)*-.08;
+    r.paper.clear().poly([-w/2,-h/2,w/2-12,-h/2-2,w/2,-h/2+10,w/2-3,h/2-5,w*.2,h/2,-w*.1,h/2-3,-w/2+2,h/2]).fill(0xe8ddbd).stroke({color:0xf7eace,width:1,alpha:.8});
+    r.paper.moveTo(-w*.22,-h/2+4).lineTo(-w*.22,h/2-4).moveTo(w*.23,-h/2+4).lineTo(w*.23,h/2-4).stroke({color:0xa89672,width:1,alpha:.25});
+    r.title.position.set(x,y);r.title.alpha=Math.max(0,(p-.65)/.35);
+    if(p>=1){
+      r.chars=Math.min(r.text.length,r.chars+sec*34);
+      this.message.text=r.text.slice(0,Math.floor(r.chars));
+      if(r.chars>=r.text.length)this.instruction.text='Можно идти дальше — или ещё немного побыть здесь';
+    }
   }
   private step(){
     const s=this.state!;s.moving=true;s.progress=0;this.clearControls();
@@ -169,29 +262,44 @@ export class MinigameDirector {
     this.instruction.text='';
   }
   private buildClock(){
-    this.rings.eventMode='static';this.rings.hitArea=new Rectangle(70,this.H*.42-125,250,250);
+    this.rings.position.set(195,this.clockY());
+    this.rings.eventMode='static';this.rings.hitArea=new Rectangle(-120,-120,240,240);
     this.rings.on('pointertap',()=>this.turnClock());
-    for(let j=0;j<3;j++){
-      const g=new Graphics(),r=96-j*25;
-      g.circle(0,0,r).stroke({color:palette.gold,width:1,alpha:.65});
-      for(let i=0;i<12;i++){
-        const a=i*Math.PI/6;
-        g.moveTo(Math.cos(a)*(r-7),Math.sin(a)*(r-7)).lineTo(Math.cos(a)*r,Math.sin(a)*r).stroke({color:palette.paper,width:1,alpha:.7});
-      }
-      g.moveTo(0,0).lineTo(0,-r+12).stroke({color:palette.paper,width:2});
-      g.position.set(195,this.H*.42);this.rings.addChild(g);
+    const face=new Graphics();
+    for(let n=12;n>0;n--)face.circle(0,0,108+n*3).fill({color:0x060d1b,alpha:.055});
+    face.circle(0,0,106).fill({color:0x111f32,alpha:.97}).stroke({color:0xcbb68a,width:2});
+    face.circle(0,0,101).stroke({color:0x7e8eaa,width:1,alpha:.6});
+    face.circle(0,0,78).stroke({color:0xcbb68a,width:1,alpha:.35});
+    for(let i=0;i<60;i++){
+      const a=i*Math.PI/30,r=i%5===0?87:93;
+      face.moveTo(Math.sin(a)*r,-Math.cos(a)*r).lineTo(Math.sin(a)*97,-Math.cos(a)*97).stroke({color:0xe9d8b1,width:i%5===0?2:1,alpha:i%5===0?.95:.45});
     }
+    for(let i=0;i<4;i++){
+      const a=i*Math.PI/2,x=Math.sin(a)*113,y=-Math.cos(a)*113;
+      face.poly([x,y-4,x+3,y,x,y+4,x-3,y]).fill(0xdac59c);
+      const numeral=label(['XII','III','VI','IX'][i],Math.sin(a)*67,-Math.cos(a)*67,16,true,0xefdfb9,40);numeral.anchor.set(.5);
+      this.rings.addChild(numeral);
+    }
+    this.rings.addChildAt(face,0);
+    for(let j=0;j<3;j++){
+      const g=new Graphics(),r=74-j*17;
+      g.poly([0,12,-3,0,-2,-r+9,0,-r,2,-r+9,3,0]).fill(j===2?0x91b1cc:0xffe9bc);
+      g.rotation=[-.85,.8,2.6][j];this.rings.addChild(g);this.clockHands.push(g);
+    }
+    this.rings.addChild(new Graphics().circle(0,0,5).fill(0xedd9aa).circle(0,0,2).fill(0x21304a));
   }
+  private clockY(){return (this.H-330)/2+35;}
   private turnClock(){
     const s=this.state;if(!s||s.kind!=='clock'||s.responding>0||s.done)return;
     s.turns++;s.responding=.55;
-    for(const[i,c]of this.rings.children.entries())gsap.to(c,{rotation:c.rotation+(i%2?-.9:.8),duration:.5,ease:'sine.inOut'});
+    for(const[i,c]of this.clockHands.entries())gsap.to(c,{rotation:c.rotation+(i%2?-.9:.8),duration:.5,ease:'sine.inOut'});
     if(s.turns>=3){s.done=true;s.responding=1.5;this.clearControls();this.say('14 времени');this.instruction.text='Ну вот. Теперь понятно.';this.chime();}
     else this.renderRound();
   }
   update(dt:number){
     const s=this.state;if(!s)return;
     const sec=Math.min(dt,150)/1000;s.elapsed+=sec;
+    if(s.kind==='fragments')this.updateForest(sec);
     s.responding=Math.max(0,s.responding-sec);
     if(s.done){if(s.responding===0)this.complete();return;}
     this.art.clear();
@@ -210,9 +318,12 @@ export class MinigameDirector {
   }
   complete(){if(!this.state)return;const done=this.finish;this.stop();done?.();}
   stop(){
+    if(this.forestRead)gsap.killTweensOf(this.forestRead);this.forestRead=undefined;
+    this.scenes.hero.alpha=1;this.scenes.girl.alpha=1;this.scenes.npc.alpha=1;
     this.state=undefined;this.finish=undefined;this.layer.visible=false;this.art.clear();this.clearControls();
     this.rings.removeAllListeners();
     for(const c of this.rings.removeChildren()){gsap.killTweensOf(c);c.destroy();}
+    this.clockHands=[];this.rings.position.set(0,0);
     this.message.text='';this.message.style.fontSize=18;this.instruction.text='';
   }
   snapshot(){return this.state?{...this.state,
@@ -225,7 +336,6 @@ export class MinigameDirector {
     this.instruction.y+=delta;this.message.y+=delta;
     if(bookGames[this.state.kind]&&!this.state.awaiting)this.renderRound();
     else for(const c of this.controls.children)c.y+=delta;
-    for(const c of this.rings.children)c.y+=delta*.42;
-    this.rings.hitArea=new Rectangle(70,height*.42-125,250,250);
+    if(this.state.kind==='clock')this.rings.y=this.clockY();
   }
 }

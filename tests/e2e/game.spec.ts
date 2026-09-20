@@ -5,6 +5,7 @@ async function jump(p:Page,id:string){await p.evaluate(id=>window.__VN_DEBUG__!.
 async function tap(p:Page,x:number,y:number){await p.touchscreen.tap(x,y);await frame(p);}
 async function ready(p:Page){await p.goto('/');await p.waitForFunction(()=>window.__VN_DEBUG__);await expect(p.locator('#boot')).toBeHidden();await frame(p);}
 test('complete every book interaction through ordinary touches',async({page},info)=>{
+ test.setTimeout(240000); // Nine scenes include separate asset/audio loads; each interaction remains capped below.
  await ready(page);const h=page.viewportSize()!.height;const errors:string[]=[];page.on('pageerror',e=>errors.push(e.message));
  for(const id of ['write_page','collect_fragments','follow_start','fourteen_time','night_conversation','join_stars','ask_musician','reread_book','name_fragments']){
   await jump(page,id);const started=Date.now();let shots=0;
@@ -58,4 +59,34 @@ test('settings persist, score is long, and targets remain legible',async({page},
  await expect(page.locator('#reduced-motion')).toBeChecked();
  await page.getByRole('button',{name:'Продолжить историю'}).click();
  await expect.poll(async()=>Number(((await state(page)).audio as {duration:number}).duration),{timeout:20000}).toBeGreaterThan(190);
+});
+test('clock stays readable and responds directly after resizing',async({page},info)=>{
+ await ready(page);await jump(page,'fourteen_time');
+ for(const h of [664,844]){
+  await page.setViewportSize({width:390,height:h});await frame(page);
+  await page.screenshot({path:`art/qa/atmosphere-${info.project.name}-clock-${h}.png`});
+ }
+ for(let i=1;i<=3;i++){
+  await tap(page,195,(844-330)/2+35);await page.waitForTimeout(600);
+  if(i<3)expect(((await state(page)).minigame as {turns:number}).turns).toBe(i);
+ }
+ await expect.poll(async()=>(await state(page)).minigame).toBeNull();
+});
+test('forest leaves stay on branches and unfold before reading',async({page},info)=>{
+ await ready(page);
+ for(const h of [664,844]){
+  await page.setViewportSize({width:390,height:h});await jump(page,'collect_fragments');
+  await page.waitForTimeout(250);
+  const m=(await state(page)).minigame as {targets:{x:number;y:number}[]};
+  for(const p of m.targets){expect(p.x).toBeGreaterThan(25);expect(p.x).toBeLessThan(385);expect(p.y).toBeGreaterThan(60);expect(p.y).toBeLessThan(h-220);}
+  await page.screenshot({path:`art/qa/forest-${info.project.name}-branches-${h}.png`});
+  await tap(page,m.targets[2].x,m.targets[2].y);
+  await page.waitForTimeout(1300);
+  expect(((await state(page)).minigame as {awaiting:boolean}).awaiting).toBe(true);
+  await page.screenshot({path:`art/qa/forest-${info.project.name}-unfold-${h}.png`});
+  await tap(page,195,h-76); // Reveal the remaining text first.
+  await page.screenshot({path:`art/qa/forest-${info.project.name}-read-${h}.png`});
+  await tap(page,195,h-76);
+  expect(((await state(page)).minigame as {collected:number[]}).collected).toContain(2);
+ }
 });
