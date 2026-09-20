@@ -21,3 +21,5 @@ Latest user refinement: forest leaves have no external emotion labels. The title
 Constellation: seven stars now occupy a fixed literal <3 composition. The two authored pixel strokes reveal over 2.2 seconds after all seven memories are collected, regardless of collection order. Reduced motion shows the completed strokes immediately. No external star title labels obscure the drawing.
 
 Hosting: the user explicitly requested reopening the repository and publishing the updated game to GitHub Pages on September 20. This supersedes the earlier hosting pause.
+
+Dormant constellation refinement: the <3 outline is visible from the start as a subdued blue pixel trace with a dark local edge. The existing completion animation illuminates the same geometry after all stars are collected. The user has now explicitly authorized verification again, superseding the prior no-check request.

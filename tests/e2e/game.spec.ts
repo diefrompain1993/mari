@@ -24,7 +24,7 @@ test('complete every book interaction through ordinary touches',async({page},inf
  expect(errors).toEqual([]);
 });
 test('new checkpoints, readable text, resizing and open ending',async({page},info)=>{
- await ready(page);await jump(page,'keeper_answer');await page.reload();await page.waitForFunction(()=>window.__VN_DEBUG__);await frame(page);await tap(page,195,page.viewportSize()!.height*.67+24);
+ await ready(page);await jump(page,'keeper_answer');await page.reload();await page.waitForFunction(()=>window.__VN_DEBUG__);await frame(page);await tap(page,195,page.viewportSize()!.height*.7+24);
  await expect.poll(async()=>(await state(page)).beat).toBe('keeper_answer');
  for(const h of [664,844]){await page.setViewportSize({width:390,height:h});
   for(const id of ['self_portrait','new_detail','night_honest_end','constellation_person','keeper_choice','confession_calm']){
@@ -92,6 +92,7 @@ test('forest leaves stay on branches and unfold before reading',async({page},inf
 });
 test('seven stars reveal a fixed pixel <3 after the last selection',async({page},info)=>{
  await ready(page);await jump(page,'join_stars');const h=page.viewportSize()!.height;
+ await page.screenshot({path:`art/qa/heart-before-${info.project.name}.png`});
  for(const i of [6,0,4,2,5,1,3]){
   const m=(await state(page)).minigame as {targets:{x:number;y:number}[]};
   await tap(page,m.targets[i].x,m.targets[i].y);

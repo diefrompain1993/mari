@@ -226,6 +226,7 @@ export class MinigameDirector {
     const s=this.state!;
     if(s.collected.length===7){
       this.constellation=this.scenes.motionReduced?1:Math.min(1,this.constellation+sec/2.2);
+    }
       // Fixed, separate strokes form the literal <3 regardless of selection order.
       for(const path of this.starPaths){
         const pixels:{x:number;y:number}[]=[];
@@ -233,15 +234,20 @@ export class MinigameDirector {
           const a=this.starPosition(path[j-1]),b=this.starPosition(path[j]),steps=Math.ceil(Math.hypot(b.x-a.x,b.y-a.y)/3);
           for(let k=0;k<steps;k++)pixels.push({x:Math.round((a.x+(b.x-a.x)*k/steps)/3)*3,y:Math.round((a.y+(b.y-a.y)*k/steps)/3)*3});
         }
-        const end=Math.ceil(pixels.length*this.constellation);
+          const end=Math.ceil(pixels.length*this.constellation);
+          // A readable dormant constellation is present before any star is chosen.
+          for(let j=0;j<pixels.length;j++){
+            const p=pixels[j];
+            this.art.rect(p.x-2,p.y-2,7,7).fill({color:0x080f24,alpha:.48});
+            this.art.rect(p.x,p.y,3,3).fill({color:0xb0c9e9,alpha:.36});
+          }
         for(let j=0;j<end;j++){
           const p=pixels[j],head=1-Math.min(1,(end-j)/14);
           this.art.rect(p.x-3,p.y-3,9,9).fill({color:0xaacfff,alpha:.09+head*.1});
           this.art.rect(p.x,p.y,3,3).fill({color:head>.2?0xfff8df:0xc6d9ef,alpha:.82});
         }
       }
-    }
-    if(s.awaiting)for(const i of s.collected){
+      if(s.awaiting)for(const i of s.collected){
       const p=this.nodePosition(i,7),glow=s.collected.length===7?1:.6;
       this.art.rect(p.x-6,p.y-6,12,12).fill({color:0xb7d6ff,alpha:.12*glow});
       this.art.rect(p.x-1.5,p.y-9,3,18).rect(p.x-6,p.y-1.5,12,3).fill({color:0xfff0c9,alpha:glow});

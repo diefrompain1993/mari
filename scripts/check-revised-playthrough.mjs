@@ -3,7 +3,7 @@ import {mkdir,writeFile} from 'node:fs/promises';
 await mkdir('art/qa/book-run',{recursive:true});const browser=await chromium.launch();
 const page=await browser.newPage({viewport:{width:390,height:844},isMobile:true,hasTouch:true,deviceScaleFactor:1});const errors=[],scenes=[],beats=new Set();
 page.on('pageerror',e=>errors.push(e.message));page.on('response',r=>{if(r.status()>=400)errors.push(r.url());});
-await page.goto('http://127.0.0.1:5188');await page.waitForFunction(()=>window.__VN_DEBUG__);await page.locator('#boot').waitFor({state:'hidden'});await page.waitForTimeout(500);await page.touchscreen.tap(195,590);
+await page.goto('http://127.0.0.1:5188');await page.waitForFunction(()=>window.__VN_DEBUG__);await page.locator('#boot').waitFor({state:'hidden'});await page.waitForTimeout(500);await page.touchscreen.tap(195,615);
 await page.waitForFunction(()=>window.__VN_DEBUG__.dumpState().remainingPause>0);
 const started=Date.now();let prev='',nextLog=0;
 while(Date.now()-started<12*60*1000){

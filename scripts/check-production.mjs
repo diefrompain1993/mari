@@ -18,7 +18,7 @@ try{for(const [name,engine,device]of[['webkit',webkit,'iPhone 13'],['chromium',c
  const errors=[],requests=[];page.on('pageerror',e=>errors.push(e.message));page.on('response',r=>{requests.push(r.url());if(r.status()>=400)errors.push(r.status()+' '+r.url());});
  await page.goto('http://127.0.0.1:4174'+prefix+'?scene=final_question');await page.locator('#boot').waitFor({state:'hidden'});
  if(await page.evaluate(()=>typeof window.__VN_DEBUG__!=='undefined'))throw Error('Production exposes debug');
- await page.touchscreen.tap(195,590);await page.waitForTimeout(8500);
+ await page.touchscreen.tap(195,615);await page.waitForTimeout(8500);
  const saved=await page.evaluate(()=>JSON.parse(localStorage.getItem('proyavlenie.v1')));
  if(saved.scene!==0)throw Error('Production query skips story');
  const webAudio=await page.evaluate(()=>typeof AudioContext!=='undefined');
