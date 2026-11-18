@@ -46,6 +46,7 @@ export class MinigameDirector {
   private rings = new Container();
   private clockHands: Graphics[] = [];
   private constellation = 0;
+  private starSoundAt = -1;
   private readonly starPoints = [[140,0],[65,90],[140,180],[230,0],[250,90],[315,135],[230,180]];
   private readonly starPaths = [
     [[140,0],[65,90],[140,180]],
@@ -63,7 +64,7 @@ export class MinigameDirector {
   private H = 844;
   private fromX = 105;
   private toX = 105;
-  constructor(private scenes: SceneManager, private chime: () => void) {
+  constructor(private scenes: SceneManager, private cue: (id: string) => void) {
     this.instruction = label('', 32, 0, 11, false, palette.muted);
     this.message = label('', 32, 0, 18);
     this.message.style.lineHeight = 26;
@@ -106,7 +107,8 @@ export class MinigameDirector {
   private action(text: string, y: number, fn: ()=>void) {
     const control=button(text,32,y,326,()=>{
       const s=this.state;if(!s||s.moving||s.responding>0)return;
-      this.chime();fn();
+      if (s.kind === 'page') this.cue('paper');
+      fn();
     });
     this.actions.push(control);this.controls.addChild(control);this.panelKey='';
   }
@@ -205,7 +207,18 @@ export class MinigameDirector {
       name.style.stroke={color:0x0c1426,width:3};
       name.style.dropShadow={color:0x030713,alpha:1,blur:5,distance:0,angle:0};
       if(s.kind!=='stars')c.addChild(name);else name.destroy();
-      if(!chosen)c.on('pointertap',e=>{e.stopPropagation();if(s.awaiting||s.responding>0)return;s.collected.push(i);this.chime();this.respond(item.text);});
+      if (!chosen) c.on('pointertap', e => {
+        e.stopPropagation();
+        if (s.awaiting || s.responding > 0) return;
+        s.collected.push(i);
+        if (s.kind === 'stars') {
+          this.starSoundAt = s.elapsed;
+          this.cue('star-' + s.collected.length);
+        } else {
+          this.cue('paper');
+        }
+        this.respond(item.text);
+      });
       this.controls.addChild(c);
     });
   }
@@ -249,6 +262,16 @@ export class MinigameDirector {
       }
       if(s.awaiting)for(const i of s.collected){
       const p=this.nodePosition(i,7),glow=s.collected.length===7?1:.6;
+      const age = s.elapsed - this.starSoundAt;
+      if (i === s.collected[s.collected.length-1] && age < .8 && !this.scenes.motionReduced) {
+        const radius = 9 + 18 * age;
+        for (let ray = 0; ray < 8; ray++) {
+          const angle = ray * Math.PI / 4;
+          const x = Math.round(p.x + radius * Math.cos(angle));
+          const y = Math.round(p.y + radius * Math.sin(angle));
+          this.art.rect(x, y, 2, 2).fill({color:0xffefce, alpha:.7*(1-age/.8)});
+        }
+      }
       this.art.rect(p.x-6,p.y-6,12,12).fill({color:0xb7d6ff,alpha:.12*glow});
       this.art.rect(p.x-1.5,p.y-9,3,18).rect(p.x-6,p.y-1.5,12,3).fill({color:0xfff0c9,alpha:glow});
     }
@@ -271,7 +294,7 @@ export class MinigameDirector {
       leaf.addChild(paper);node.addChild(thread,leaf);
       node.eventMode=chosen?'none':'static';node.cursor='pointer';
       node.hitArea=new Rectangle(-30,-30,60,60);
-      node.on('pointertap',e=>{e.stopPropagation();if(s.awaiting||s.responding>0)return;s.collected.push(index);this.chime();this.openForestPage(index,item.title,item.text);});
+      node.on('pointertap',e=>{e.stopPropagation();if(s.awaiting||s.responding>0)return;s.collected.push(index);this.cue('paper');this.openForestPage(index,item.title,item.text);});
       this.controls.addChild(node);this.forestNodes.push({node,leaf,thread,index});
     });
     this.positionForest();
@@ -345,9 +368,10 @@ export class MinigameDirector {
   private clockY(){return (this.H-330)/2+35;}
   private turnClock(){
     const s=this.state;if(!s||s.kind!=='clock'||s.responding>0||s.done)return;
+    this.cue('escapement');
     s.turns++;s.responding=.55;
     for(const[i,c]of this.clockHands.entries())gsap.to(c,{rotation:c.rotation+(i%2?-.9:.8),duration:.5,ease:'sine.inOut'});
-    if(s.turns>=3){s.done=true;s.responding=1.5;this.clearControls();this.say('14 времени');this.instruction.text='Ну вот. Теперь понятно.';this.chime();}
+    if(s.turns>=3){s.done=true;s.responding=1.5;this.clearControls();this.say('14 времени');this.instruction.text='Ну вот. Теперь понятно.';this.cue('chime');}
     else this.renderRound();
   }
   update(dt:number){

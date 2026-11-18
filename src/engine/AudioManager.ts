@@ -3,6 +3,7 @@ import type { Scene, Settings } from "../content/types";
 import {personalMusic} from '../content/music';
 export class AudioManager {
   private music?: Howl;
+  private outgoing?: Howl;
   private ambience?: Howl;
   private sounds = new Map<string, Howl>();
   private track = "";
@@ -16,7 +17,8 @@ export class AudioManager {
   async unlock() {
     try {
       if (Howler.ctx?.state === "suspended") await Howler.ctx.resume();
-      this.unlocked = Howler.ctx?.state === "running";
+      this.unlocked = Howler.ctx?.state === "running" || (!Howler.usingWebAudio && !Howler.noAudio);
+      if (this.unlocked && this.music && !this.paused && !this.music.playing()) this.music.play();
       return this.unlocked;
     } catch {
       return false;
@@ -28,9 +30,9 @@ export class AudioManager {
     this.track = id;
     this.gain = 0.43;
     const old = this.music;
-    old?.fade(old.volume(), 0, 1000);
-    if (old) setTimeout(() => old.unload(), 1100);
-    this.music = new Howl({
+    this.outgoing?.unload();
+    this.outgoing = old;
+    const next = new Howl({
       src: [import.meta.env.BASE_URL + (personalMusic.scene === scene.id && personalMusic.stayTrack ? personalMusic.stayTrack : `assets/audio/${id}.mp3`)],
       loop: true,
       volume: 0,
@@ -39,17 +41,31 @@ export class AudioManager {
         document.getElementById("audio-retry")!.hidden = false;
       },
     });
-    this.music.play();
-    this.music.fade(0, this.settings.music * 0.43, 1800);
-    this.ambience?.unload();
+    this.music = next;
+    next.once('play', () => {
+      if (this.music !== next) return;
+      if (old) {
+        old.fade(old.volume(), 0, 1500);
+        setTimeout(() => {
+          if (this.outgoing === old) {
+            old.unload();
+            this.outgoing = undefined;
+          }
+        }, 1550);
+      }
+      next.fade(0, this.settings.music * this.gain, 1800);
+    });
+    if (!this.paused) next.play();
+    if (this.ambience) return;
     this.ambience = new Howl({
       src: [import.meta.env.BASE_URL + "assets/audio/air.wav"],
       loop: true,
       volume: this.settings.sfx * 0.13,
     });
-    this.ambience.play();
+    if (!this.paused) this.ambience.play();
   }
   cue(id: string) {
+    if (this.paused || this.settings.sfx === 0) return;
     let h = this.sounds.get(id);
     if (!h) {
       h = new Howl({
@@ -73,6 +89,8 @@ export class AudioManager {
   pause() {
     this.paused = true;
     this.music?.pause();
+    this.outgoing?.pause();
+    for (const sound of this.sounds.values()) sound.stop();
     this.ambience?.pause();
   }
   resume() {

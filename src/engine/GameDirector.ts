@@ -55,8 +55,8 @@ export class GameDirector {
       () => this.data.settings,
       () => void this.next(),
     );
-    this.games = new MinigameDirector(this.scenes, () =>
-      this.audio.cue("chime"),
+    this.games = new MinigameDirector(this.scenes, (id) =>
+      this.audio.cue(id),
     );
     this.root.addChild(this.games.layer, this.dialogue.layer, this.startLayer);
     this.transitions = new TransitionDirector(
@@ -209,6 +209,7 @@ export class GameDirector {
     );
     this.scenes.beat(beat.id);
     if (beat.cue) this.audio.cue(beat.cue);
+    if (beat.id === 'still_here') this.audio.quiet(0.43);
     if (beat.game) {
       this.dialogue.hide();
       this.games.start(beat.game, this.height, () => {

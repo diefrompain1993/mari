@@ -2,49 +2,49 @@
   "prologue": {
     "duration": 192,
     "sections": 4,
-    "peak": 0.1068,
+    "peak": 0.3549,
     "bytes": 2304984
   },
   "light": {
     "duration": 192,
     "sections": 4,
-    "peak": 0.1524,
+    "peak": 0.3414,
     "bytes": 2304984
   },
   "approach": {
     "duration": 192,
     "sections": 4,
-    "peak": 0.1412,
+    "peak": 0.2713,
     "bytes": 2304984
   },
   "silence": {
     "duration": 192,
     "sections": 4,
-    "peak": 0.1117,
+    "peak": 0.3549,
     "bytes": 2304984
   },
   "noise": {
     "duration": 192,
     "sections": 4,
-    "peak": 0.1462,
+    "peak": 0.2704,
     "bytes": 2304984
   },
   "cafe": {
     "duration": 192,
     "sections": 4,
-    "peak": 0.1372,
+    "peak": 0.3298,
     "bytes": 2304984
   },
   "resolution": {
     "duration": 192,
     "sections": 4,
-    "peak": 0.14,
+    "peak": 0.2996,
     "bytes": 2304984
   },
   "finale": {
     "duration": 192,
     "sections": 4,
-    "peak": 0.141,
+    "peak": 0.3553,
     "bytes": 2304984
   }
 }
