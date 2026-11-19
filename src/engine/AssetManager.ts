@@ -1,7 +1,7 @@
 import { Assets, Texture } from "pixi.js";
 import manifest from "../content/asset-manifest.json";
 import type { Scene } from "../content/types";
-import { backgroundId, characterIds } from '../content/visuals';
+import { backgroundId, characterIds, gestureShot } from '../content/visuals';
 export class AssetManager {
   private loaded = new Map<string, Texture>();
   private pending = new Map<string, Promise<Texture>>();
@@ -43,6 +43,11 @@ export class AssetManager {
     add();
     if (scene.npc) ids.add(scene.npc);
     for (const b of scene.beats) {
+      if (gestureShot[b.id]) ids.add(gestureShot[b.id]);
+      if (b.game === 'fragments') {
+        ids.add('gesture-forest-clean');
+        ids.add('gesture-pocket-book');
+      }
       hero = b.hero ?? hero; girl = b.girl ?? girl; add();
     }
     if (scene.environment === "crowd") {

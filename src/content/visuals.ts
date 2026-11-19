@@ -1,4 +1,22 @@
 import type { Scene } from './types';
+// Inserts belong to existing beats so resuming at a line restores its framing.
+export const gestureShot: Readonly<Record<string, string>> = {
+  simple_words: 'gesture-grip',
+  roughly: 'gesture-grip',
+  kindness_wait: 'gesture-shelter',
+  kindness_action: 'gesture-shelter',
+  clock_accept: 'gesture-pixel-glance',
+  clock_opens: 'gesture-pixel-glance',
+  laugh_again: 'gesture-pixel-glance',
+  night_room_start: 'gesture-pixel-window',
+  night_sound: 'gesture-pixel-window',
+  night_preoccupied: 'gesture-pixel-lowered',
+  night_question: 'gesture-pixel-lowered',
+  night_admit: 'gesture-pixel-lowered',
+  night_offer: 'gesture-pixel-release',
+  night_choice: 'gesture-pixel-raised',
+  confession_choice: 'gesture-rest',
+};
 export type WorldStyle = 'line' | 'pixel' | 'full';
 export const worldStyle = (hero: number): WorldStyle => hero >= 6 ? 'full' : hero >= 4 ? 'pixel' : 'line';
 export function backgroundId(scene: Scene, hero: number) {

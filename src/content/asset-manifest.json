@@ -537,5 +537,115 @@
     "height": 160,
     "memoryBytes": 44160,
     "fallback": null
+  },
+  {
+    "id": "gesture-grip",
+    "url": "assets/gestures/gesture-grip.webp",
+    "chapter": "shared",
+    "type": "texture",
+    "priority": "chapter-current",
+    "width": 416,
+    "height": 416,
+    "memoryBytes": 692224,
+    "fallback": null
+  },
+  {
+    "id": "gesture-shelter",
+    "url": "assets/gestures/gesture-shelter.webp",
+    "chapter": "shared",
+    "type": "texture",
+    "priority": "chapter-current",
+    "width": 416,
+    "height": 416,
+    "memoryBytes": 692224,
+    "fallback": null
+  },
+  {
+    "id": "gesture-pixel-glance",
+    "url": "assets/gestures/gesture-pixel-glance.webp",
+    "chapter": "shared",
+    "type": "texture",
+    "priority": "chapter-current",
+    "width": 220,
+    "height": 220,
+    "memoryBytes": 193600,
+    "fallback": null
+  },
+  {
+    "id": "gesture-pixel-window",
+    "url": "assets/gestures/gesture-pixel-window.webp",
+    "chapter": "shared",
+    "type": "texture",
+    "priority": "chapter-current",
+    "width": 220,
+    "height": 220,
+    "memoryBytes": 193600,
+    "fallback": null
+  },
+  {
+    "id": "gesture-pixel-lowered",
+    "url": "assets/gestures/gesture-pixel-lowered.webp",
+    "chapter": "shared",
+    "type": "texture",
+    "priority": "chapter-current",
+    "width": 220,
+    "height": 220,
+    "memoryBytes": 193600,
+    "fallback": null
+  },
+  {
+    "id": "gesture-pixel-raised",
+    "url": "assets/gestures/gesture-pixel-raised.webp",
+    "chapter": "shared",
+    "type": "texture",
+    "priority": "chapter-current",
+    "width": 220,
+    "height": 220,
+    "memoryBytes": 193600,
+    "fallback": null
+  },
+  {
+    "id": "gesture-pixel-release",
+    "url": "assets/gestures/gesture-pixel-release.webp",
+    "chapter": "shared",
+    "type": "texture",
+    "priority": "chapter-current",
+    "width": 220,
+    "height": 220,
+    "memoryBytes": 193600,
+    "fallback": null
+  },
+  {
+    "id": "gesture-rest",
+    "url": "assets/gestures/gesture-rest.webp",
+    "chapter": "shared",
+    "type": "texture",
+    "priority": "chapter-current",
+    "width": 416,
+    "height": 416,
+    "memoryBytes": 692224,
+    "fallback": null
+  },
+  {
+    "id": "gesture-pocket-book",
+    "url": "assets/gestures/gesture-pocket-book.webp",
+    "chapter": "shared",
+    "type": "texture",
+    "priority": "chapter-current",
+    "width": 399,
+    "height": 217,
+    "memoryBytes": 346332,
+    "fallback": null
+  },
+  {
+    "id": "gesture-forest-clean",
+    "url": "assets/gestures/gesture-forest-clean.webp",
+    "chapter": "shared",
+    "type": "texture",
+    "priority": "chapter-current",
+    "width": 586,
+    "height": 1266,
+    "memoryBytes": 2967504,
+    "fallback": null
   }
 ]

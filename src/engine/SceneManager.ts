@@ -6,7 +6,7 @@ import { CameraDirector } from "./CameraDirector";
 import { FXManager } from "./FXManager";
 import { label, shade } from "../ui/canvas";
 import type { Scene, Settings } from "../content/types";
-import { backgroundId, characterIds, worldStyle } from '../content/visuals';
+import { backgroundId, characterIds, gestureShot, worldStyle } from '../content/visuals';
 export class SceneManager {
   readonly world = new Container();
   readonly overlay = new Container();
@@ -20,6 +20,11 @@ export class SceneManager {
   private height = 844;
   private foreground = new Graphics();
   private bookAura = new Graphics();
+  private cutaway = new Container();
+  private shotMat = new Graphics();
+  private previousShot = new Sprite();
+  private shot = new Sprite();
+  private shotId?: string;
   private backgroundBaseY = 0;
   private crowd: Sprite[] = [];
   private stages = { hero: 0, girl: 0 };
@@ -34,12 +39,19 @@ export class SceneManager {
     root.addChild(this.world);
     this.world.addChild(this.bookAura, this.hero, this.girl, this.npc, this.foreground);
     root.addChild(this.fx.layer, this.overlay);
+    this.cutaway.addChild(this.shotMat,this.previousShot,this.shot);
+    this.previousShot.anchor.set(.5);
+    this.previousShot.visible=false;
+    this.shot.anchor.set(.5);
+    this.cutaway.visible=false;
+    root.addChild(this.cutaway);
     this.camera = new CameraDirector(
       this.world,
       () => settings().reducedMotion,
     );
   }
   async enter(scene: Scene, height: number) {
+    this.setShot(undefined);
     this.height = height;
     this.scene = scene;
     await this.assets.scene(scene);
@@ -126,6 +138,9 @@ export class SceneManager {
   }
   layout(height: number) {
     this.height = height;
+    this.shotMat.clear().rect(0,0,390,height).fill(0x101522);
+    this.shot.position.set(195,height*.40);
+    this.previousShot.position.copyFrom(this.shot.position);
     if (this.dialogueShade) this.dialogueShade.y = height - this.shadeHeight;
     if (this.background) {
       const scale = Math.max(
@@ -205,6 +220,13 @@ export class SceneManager {
     if (this.background) this.background.alpha = value ? 0.12 : 1;
   }
   beat(id: string) {
+    this.setShot(gestureShot[id]);
+    if (this.background && this.scene?.id === 'forest_fragments') {
+      const beats = this.scene.beats;
+      if (beats.findIndex(b=>b.id===id) >= beats.findIndex(b=>b.game==='fragments')) {
+        this.background.texture = this.assets.get('gesture-forest-clean');
+      }
+    }
     if (id === 'opening_line') this.hero.draw(this.settings().reducedMotion ? 1 : 5.5);
     if (id === "title_reveal") {
       const t = label("Проявление", 195, this.height * 0.28, 46, true);
@@ -271,6 +293,29 @@ export class SceneManager {
       g.alpha = 0.3;
       this.world.addChild(g);
       gsap.to(g, { alpha: 0, duration: 3, onComplete: () => g.destroy() });
+    }
+  }
+  private setShot(id: string | undefined) {
+    if (this.shotId === id) return;
+    gsap.killTweensOf([this.cutaway, this.shot]);
+    const dissolve = !!(id && this.shotId && !this.motionReduced);
+    this.previousShot.visible = dissolve;
+    if (dissolve) {
+      this.previousShot.texture = this.shot.texture;
+      this.previousShot.setSize(390,390);
+    }
+    this.shotId = id;
+    this.cutaway.visible = !!id;
+    if (!id) return;
+    this.shot.texture=this.assets.get(id);
+    this.shot.setSize(390,390);
+    this.cutaway.alpha=1;
+    this.shot.alpha=1;
+    if (!this.motionReduced) {
+      gsap.fromTo(dissolve ? this.shot : this.cutaway, {alpha:0}, {
+        alpha:1, duration:.28,
+        onComplete:()=>{this.previousShot.visible=false;},
+      });
     }
   }
   update(time: number, dt: number) {

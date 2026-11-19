@@ -88,7 +88,26 @@ test('forest leaves stay on branches and unfold before reading',async({page},inf
   await page.screenshot({path:`art/qa/forest-${info.project.name}-read-${h}.png`});
   await tap(page,195,h-76);
   expect(((await state(page)).minigame as {collected:number[]}).collected).toContain(2);
+  await expect.poll(async()=>((await state(page)).minigame as {round:number}).round).toBe(1);
+  expect(((await state(page)).minigame as {collected:number[]}).collected).toEqual([2]);
  }
+});
+test('illustrated gestures load at their saved lines',async({page},info)=>{
+ const failures:string[]=[];
+ page.on('response',r=>{if(r.url().includes('/gestures/')&&!r.ok())failures.push(r.url());});
+ await ready(page);
+ for(const id of ['roughly','kindness_action','clock_accept','night_sound','night_choice','confession_choice']){
+  await jump(page,id);
+  await expect.poll(async()=>(await state(page)).beat).toBe(id);
+  await page.waitForTimeout(500);
+  await page.screenshot({path:`art/qa/gesture-${info.project.name}-${id}.png`,scale:'css'});
+ }
+ await jump(page,'night_admit');
+ for(const [from,to] of [['night_admit','night_offer'],['night_offer','night_choice']]){
+  for(let i=0;i<2&&(await state(page)).beat===from;i++)await tap(page,195,page.viewportSize()!.height-85);
+  await expect.poll(async()=>(await state(page)).beat).toBe(to);
+ }
+ expect(failures).toEqual([]);
 });
 test('seven stars reveal a fixed pixel <3 after the last selection',async({page},info)=>{
  await ready(page);await jump(page,'join_stars');const h=page.viewportSize()!.height;
